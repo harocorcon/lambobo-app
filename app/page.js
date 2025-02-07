@@ -1,9 +1,12 @@
 
-
+import Dashboard from "./components/Dashboard"
 
 export default function Home(){
 
   return(
-    <h1 className="text-center">Welcome to Lambobo App</h1>
+    <>
+      <h1 className="text-center">Welcome to Lambobo App</h1>
+      <Dashboard />
+    </>
   )
 }
