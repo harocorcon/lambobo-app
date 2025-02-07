@@ -1,13 +1,23 @@
 'use client'
 
 import Image from "next/image";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { login, signup } from "../actions/userController";
 
 export default function Login() {
     const [isSignUp, setIsSignUp] = useState(false);
-    const [clickedSignUp, setClickSignUp] = useState(false)
-    const formHeader = isSignUp? 'Create an Account': 'Log in to your account'
+    const [clickedSignUp, setClickSignUp] = useState(false);
+    const [loginState, loginAction] = useActionState(login, {});
+    const [signUpState, signUpAction] = useActionState(signup, {});
+
+    const formAction = isSignUp? signUpAction: loginAction;
+    const formState = isSignUp? signUpState: loginState;
+
+    
+    const formHeader = isSignUp? 'Create an Account': 'Log in to your account';
+    const buttonText = isSignUp? 'Sign up': 'Login';
+    const pText = !isSignUp? 'Sign up': 'Login';
+
     return (
         <div>
             <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -20,7 +30,7 @@ export default function Login() {
             </div>
 
             <div className=" sm:mx-auto sm:w-full sm:max-w-sm">
-                <form className="space-y-6" action="#" method="POST">
+                <form action={formAction} className="space-y-6">
                     <div>
                         <label htmlFor="email" className="block text-sm/6 font-medium text-white">Email address</label>
                         <div className="mt-2">
@@ -40,50 +50,33 @@ export default function Login() {
                         </div>
                     </div>
                     {
-                        clickedSignUp && 
-                        <div>Sign up link sent. Go confirm your email.</div>
+                        isSignUp && clickedSignUp && 
+                        <div className="text-center">Sign up link sent. Go confirm your email.</div>
+                    }
+                    {
+                        !isSignUp && formState.error &&
+                        <div><p className="text-sm text-center text-red-600">{formState.error}</p></div>
                     }
 
                     <div>
-                        { isSignUp? (
                             <button 
                                 type="submit" 
                                 className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                onClick={() => setClickSignUp(true)}
-                                formAction={signup}
-                            >Sign Up</button>
-                        ): (
-                            <button 
-                                type="submit" 
-                                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm/6 font-semibold text-white shadow-xs hover:bg-indigo-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-                                onClick={() => setClickSignUp(false)}
-                                formAction={login}
-                            >Login</button>
-                        )
-                        }
+                                onClick={() => setClickSignUp(!clickedSignUp)}
+                                >{buttonText}
+                            </button>
                     </div>
 
                     <div className="text-center">
                     {
-                        !isSignUp ? (
-                            <p className="items-center justify-center text-sm font-light text-gray-500 dark:text-gray-400"> Don't have an account? {' '}
+                            <p className="items-center justify-center text-sm font-light text-gray-500 dark:text-gray-400"> 
+                                {isSignUp? "Already have an account? ":"Don't have an account? "}
                                 <button className="font-medium text-blue-600 hover:underline dark:text-primary-500"
-                                    onClick={() => setIsSignUp(true)}
+                                    onClick={() => setIsSignUp(!isSignUp)}
                                 >
-                                    Sign up
+                                    {isSignUp? 'Login': 'Sign up'}
                                 </button>
                             </p>
-                        ) : (
-                            <p  className="items-center justify-center text-sm font-light text-gray-500 dark:text-gray-400"> Already have an account? {' '}
-                                <button className="font-medium text-blue-600 hover:underline dark:text-primary-500"
-                                    type="submit" 
-                                    // formAction={login}
-                                    onClick={() => setIsSignUp(false)}
-                                >
-                                    Login
-                                </button>
-                            </p>
-                        )
                     }
                     </div>
                 </form>
