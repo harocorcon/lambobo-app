@@ -2,8 +2,8 @@
 
 import { redirect } from "next/navigation";
 
-export async function createBobo(){
-    
+export async function createBobo(prevState, formData){
+    console.log(formData);
     return {
         error: "Incomplete details."
     }

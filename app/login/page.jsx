@@ -1,7 +1,7 @@
 'use client'
 
 import Image from "next/image";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { login, signup } from "../actions/userController";
 
 export default function Login() {
@@ -12,11 +12,9 @@ export default function Login() {
 
     const formAction = isSignUp? signUpAction: loginAction;
     const formState = isSignUp? signUpState: loginState;
-
     
     const formHeader = isSignUp? 'Create an Account': 'Log in to your account';
     const buttonText = isSignUp? 'Sign up': 'Login';
-    const pText = !isSignUp? 'Sign up': 'Login';
 
     return (
         <div>
@@ -24,7 +22,7 @@ export default function Login() {
                 <div className="sm:mx-auto sm:w-full sm:max-w-sm">
                 <Image src="/lambobo-logo-3.svg" width={60} height={60} className="mx-auto h-10 w-auto" alt="Lambobo Logo" />
                 <h2 className="mt-4 text-center text-2xl/9 font-bold tracking-tight text-white">
-                {formHeader}
+                    {formHeader}
                 </h2>
                 </div>
             </div>
@@ -34,7 +32,13 @@ export default function Login() {
                     <div>
                         <label htmlFor="email" className="block text-sm/6 font-medium text-white">Email address</label>
                         <div className="mt-2">
-                        <input type="email" name="email" id="email" autoComplete="email" required className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"/>
+                            <input 
+                                type="email" 
+                                name="email" 
+                                id="email" 
+                                autoComplete="email" 
+                                required 
+                                className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600 sm:text-sm/6"/>
                         </div>
                     </div>
 
