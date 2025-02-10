@@ -4,7 +4,7 @@
 export default function TransactionForm() {
 
     return (
-        <div className="flex flex-col w-full md:w-1/3 px-3 mb-6 mt-6 md:mb-0">
+        <div className="w-full mt-2">
             <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2" htmlFor="grid-city">
                 Payment Label
             </label>
@@ -43,8 +43,8 @@ export default function TransactionForm() {
                 </div>
             </div>
 
-            <div className="flex mx-auto">
-                <button className="mt-5 mb-5  bg-blue-400 hover:bg-[#205a86]  text-white text-sm py-2 px-4 rounded"
+            <div className="flex">
+                <button className="mt-5 mb-5 items-center mx-auto bg-sky-400 hover:bg-sky-600  text-white text-sm py-2 px-4 rounded"
                 >
                     Add Transaction Type
                 </button>
