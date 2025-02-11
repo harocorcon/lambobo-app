@@ -2,14 +2,13 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "../utils/supabase/server";
+import { redirect } from "next/navigation";
 
 
-export async function createBobo(prevState, formData){
-
+export async function createBobo(formData){
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     const user = data.user;
-
     if(!user){
         return {
             success: false,
@@ -17,21 +16,46 @@ export async function createBobo(prevState, formData){
         }
     }
     try {
-        const { data, error } = await (await supabase).from('bobocycle').insert([
+        const { data: boboData, error: boboError } = await (await supabase)
+            .from('bobocycle')
+            .insert([
             {
-                name: formData.get('title'),
+                name: formData.title,
                 admin: user.id,
-                duration: formData.get('duration'),
-                interest: formData.get('interestRate'),
+                duration: formData.duration,
+                interest: formData.interestRate,
                 isActive: true,
-                startDate: formData.get('startDate')
+                startDate: formData.startDate
             }
-        ])
-        if(error) throw error;
-        revalidatePath('/');
+            ])
+            .select("*")  // ✅ Fetch inserted row
+            .single();   // ✅ Return only one row
+        
+        if(boboError) throw error;
+
+        const boboId = boboData.id;
+        const {transactionTypes} = formData;
+
+        const { data: tranTypesData, error: tranTypesError} = await (await supabase)
+            .from('transaction_type')
+            .insert(
+                transactionTypes.map((t) => ({
+                    bobocycle_id: boboId,
+                    label: t.label,
+                    amount: t.amount == "depende"? 0: t.amount,
+                    isOptional: t.isOptional,
+                }))
+            )
+
+        if (tranTypesError) throw tranTypesError;
+
+        console.log(boboData, "createbobo saved ", tranTypesData)
+        redirect("/")
+
         return {
             success: true,
-            data: data
+            data: data,
+            message: "Bobo Saved."
         }
 
     } catch(error){
@@ -40,8 +64,4 @@ export async function createBobo(prevState, formData){
     
 }
 
-const isUUID = (id) => {
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[4][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-    return uuidRegex.test(id);
-  };
   

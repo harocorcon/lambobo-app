@@ -9,7 +9,6 @@ export default function StartDate({ setStartDate }) {
     const [selectedDate, setSelectedDate] = useState(new Date());
     const handleDateChange = (date) => {
         setSelectedDate(moment(date).format("YYYY-MM-DD"));
-        console.log(moment(date).format("YYYY-MM-DD"));
         setStartDate(moment(date).format("YYYY-MM-DD"));
     }
 
