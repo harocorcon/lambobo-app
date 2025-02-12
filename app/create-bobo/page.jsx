@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CreateBoboForm from "./CreateBoboForm"
 import TransactionForm from "./TransactionForm";
 import { createBobo } from "../actions/boboController";
