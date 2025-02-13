@@ -17,7 +17,7 @@ export async function createBobo(formData){
     }
     try {
         const { data: boboData, error: boboError } = await (await supabase)
-            .from('bobocycle')
+            .from('bobo_cycles')
             .insert([
             {
                 name: formData.title,
@@ -25,19 +25,19 @@ export async function createBobo(formData){
                 duration: formData.duration,
                 interest: formData.interestRate,
                 isActive: true,
-                startDate: formData.startDate
+                startdate: formData.startDate
             }
             ])
             .select("*")  // ✅ Fetch inserted row
             .single();   // ✅ Return only one row
         
-        if(boboError) throw error;
+        if(boboError) throw boboError;
 
         const boboId = boboData.id;
         const {transactionTypes} = formData;
 
         const { data: tranTypesData, error: tranTypesError} = await (await supabase)
-            .from('transaction_type')
+            .from('transaction_types')
             .insert(
                 transactionTypes.map((t) => ({
                     bobocycle_id: boboId,
@@ -49,7 +49,6 @@ export async function createBobo(formData){
 
         if (tranTypesError) throw tranTypesError;
 
-        console.log(boboData, "createbobo saved ", tranTypesData)
         redirect("/")
 
         return {
