@@ -80,7 +80,7 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
 
                     <div className="w-full mt-2">
                         
-                        <StartDate setStartDate={setStartDate}/>
+                        <StartDate formData={formData} updateFormData={updateFormData}/>
                         <input type="hidden" name="startDate" value={formData['startDate']}
                             onChange={(e) => handleChange("startDate", startDate)} />
                     </div>
