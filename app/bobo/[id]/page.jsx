@@ -1,40 +1,16 @@
-import { createClient } from "@/app/utils/supabase/server";
-import AddAccount from "../../components/AddAccount"
-
+import AccountForm from "../../components/AccountForm"
 import dayjs from "dayjs";
+import { redirect } from "next/navigation";
+import { getBoboCycle, getTransactionTypes } from "@/app/actions/boboController";
 
-export default async function BoboPage({params}) {
-    const { id } = await params;
-    const supabase = createClient();
-    const { data: userData } = await (await supabase).auth.getUser();
-    
-    const boboId = id;
-    let bobo = {};
 
-    if(userData.user){
-        const { data, error} = await (await supabase)
-                                .from('bobo_cycles')
-                                .select('*')
-                                .eq('id', boboId)
-                                .eq('admin', userData.user.id)
-        if(error){
-            console.error('Error fetching from bobocycle', error);
-        }
-        const { types, err} = await (await supabase)
-                                .from('transaction_types')
-                                .select()
-                                .eq('bobocycle_id', boboId)
-        if(err){
-            console.error('Error fetching from transaction_type', error);
-        }
-        console.log(boboId, "types please", types);
-        bobo = data[0];
-    }
-    else {
-        return (
-            <h1> You are not authorized to go to this page.</h1>
-        )
-    }
+export default async function BoboPage({ params }) {
+    const { id: boboId } = await params;
+    const { data: bobo } = await getBoboCycle(boboId)
+
+    const { data: types} = await getTransactionTypes(boboId);
+    const typeLabels = types.map(type => type.label)
+  
     return (
         <div >
             <div className="justify-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg w-110 p-6">
@@ -48,32 +24,31 @@ export default async function BoboPage({params}) {
                 </div>
 
                 <div name="bobo-details"
-                    className="block text-slate-600 leading-normal font-light mb-4">
+                    className="block text-slate-600  text-xs leading-normal font-light mb-4">
                     <p className="text-xs">{getSchedule(bobo.startdate, bobo.duration)}</p>
-                    <p>Interest: {bobo.interest}% per month</p>
-                    <p>Members
-                        {canAddMembers(bobo.startdate) && 
-                        <span className="ml-4">
-                            <button className=" hover:bg-red-300 bg-red-400 p-1 rounded-sm text-white text-xs"
-                                >Add Account</button>
-                        </span>}
-                    </p>
+                    <p className="font-bold">Interest: <span className="font-normal">{bobo.interest}% per month</span></p>
 
-                </div>
-                <div name="account-form" id="account-form">
-                    <AddAccount />
+                    <div className="flex items-center">
+                        <p className="font-bold  mr-2">Transactions:</p>
+                        <div className="flex flex-wrap gap-2"> {/* Use flexbox for layout */}
+                        {typeLabels.map((type, key) => (
+                            <button
+                                key={key} // Add a unique key for each button
+                                className="bg-sky-100 hover:bg-sky-200 text-gray-700 font-medium rounded-xl text-xs px-2 py-0 border border-gray-200" // Notion-style label classes
+                            >
+                            {type}
+                            </button>
+                        ))}
+                        </div>
+                    </div>
                 </div>
             </div>
-            {/* <AccountForm /> */}
             
+            <AccountForm bobo={bobo} />
         </div>
     )
 }
 
 const getSchedule = (start, length) => {
     return start + " to " + dayjs(start).add(length, "week").format("YYYY-MM-DD") + " ("+length+" weeks)"
-}
-
-const canAddMembers = (startdate) =>{
-    return !dayjs().isAfter(startdate)
 }

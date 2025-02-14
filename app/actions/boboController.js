@@ -1,6 +1,5 @@
 'use server';
 
-import { revalidatePath } from "next/cache";
 import { createClient } from "../utils/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -61,6 +60,38 @@ export async function createBobo(formData){
         throw error
     }
     
+}
+
+export async function getBoboCycle(boboId){
+    const supabase = createClient();
+    const { data: userData } = await (await supabase).auth.getUser();
+    
+    if (!userData?.user) { // Simplified check for user
+      redirect('/login');
+    }
+
+    const { data: bobo, error } = await (await supabase)
+                            .from('bobo_cycles')
+                            .select('*')
+                            .eq('id', boboId)
+                            .eq('admin', userData.user.id)
+                            .single();
+
+    if (error) {
+        console.error('Error fetching from bobocycle', error);
+        }
+    return { data: bobo, error: null }
+} 
+
+export async function getTransactionTypes(boboId){
+    const supabase = createClient();
+    const { data: types, error: err } = await (await supabase)
+                                        .from('transaction_types')
+                                        .select()
+                                        .eq('bobocycle_id', boboId);
+    if(err)
+        console.error(err);
+    return { data: types, error: null }
 }
 
   
