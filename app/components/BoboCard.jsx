@@ -21,9 +21,10 @@ export default async function BoboCards() {
     return (
         <div className="h-screen">
             <h1 className="text-xl font-extrabold mx-auto p-3">{header}</h1>
-                <ul>
+                
                 {bobocycles.map((bobo, key) => (
-                    <Link href={`/bobo/${bobo.id}` }>
+                    <div key={key}>
+                    <Link href={`/bobo/${bobo.id}`}>
                     <div className="relative flex flex-col my-6 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg w-96 p-6">
                         <div className="flex items-center mb-2">
                             <h5 className=" text-slate-800 text-xl font-semibold">
@@ -42,8 +43,9 @@ export default async function BoboCards() {
                         </div>
                     </div>
                     </Link>
+                    </div>
                 ))}
-            </ul>
+            
 
         </div>
     )

@@ -1,8 +1,6 @@
-import AccountForm from "../../components/AccountForm"
 import dayjs from "dayjs";
-import { redirect } from "next/navigation";
 import { getBoboCycle, getTransactionTypes } from "@/app/actions/boboController";
-
+import AccountMenu from "../../components/AccountMenu";
 
 export default async function BoboPage({ params }) {
     const { id: boboId } = await params;
@@ -33,8 +31,8 @@ export default async function BoboPage({ params }) {
                         <div className="flex flex-wrap gap-2"> {/* Use flexbox for layout */}
                         {typeLabels.map((type, key) => (
                             <button
-                                key={key} // Add a unique key for each button
-                                className="bg-sky-100 hover:bg-sky-200 text-gray-700 font-medium rounded-xl text-xs px-2 py-0 border border-gray-200" // Notion-style label classes
+                                key={key}
+                                className="bg-sky-100 hover:bg-sky-200 text-gray-700 font-medium rounded-xl text-xs px-2 py-0 border border-gray-200" 
                             >
                             {type}
                             </button>
@@ -44,7 +42,7 @@ export default async function BoboPage({ params }) {
                 </div>
             </div>
             
-            <AccountForm bobo={bobo} />
+            <AccountMenu bobo={bobo} />
         </div>
     )
 }
