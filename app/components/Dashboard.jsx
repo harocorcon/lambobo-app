@@ -1,5 +1,5 @@
 import Link from "next/link";
-import BoboCard from "./BoboCard";
+import BoboList from "./BoboList";
 
 export default function Dashboard() {
     return (
@@ -13,7 +13,7 @@ export default function Dashboard() {
                 </button>
             </Link>
 
-            <BoboCard />
+            <BoboList />
 
             
 
