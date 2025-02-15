@@ -14,7 +14,7 @@ export async function login(prevState, formData){
         });
 
         if (error) {
-            console.error('Error during login:', error.message); // Handling the error
+            console.error('Error during login:', error.message);
             return {
                 success: false,
                 error: error.message
@@ -36,23 +36,6 @@ export async function signup(prevState, formData){
         email: formData.get('email'),
         password: formData.get('password')
     }
-    console.log("signing in...", data)
-
-    // get all user.email and check if data.email is there alrdy
-
-    // try{
-    //     const { data, error } = await supabase
-    //         .from('Users')
-    //         .select('email')
-
-    //     if(data)
-    //         console.log('emails: ', data)
-    //     else
-    //         return error;
-    // } catch(error){
-    //     console.log("catch error")
-    //     return error;
-    // }
 
     const {error} = await supabase.auth.signUp(data);
     if(error){

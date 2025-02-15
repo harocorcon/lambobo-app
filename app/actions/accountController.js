@@ -39,22 +39,21 @@ export async function createAccounts(accounts, boboId){
 }
 
 export async function countAccounts(boboId){
-    const supabase = createClient(); // Initialize your Supabase client
-
+    const supabase = createClient();
     try {
         const { count, error } = await (await supabase)
         .from('accounts')
-        .select('*', { count: 'exact' }) // Select all (or specific columns) and count
-        .eq('bobocycle_id', boboId); // Filter by boboId
+        .select('*', { count: 'exact' }) 
+        .eq('bobocycle_id', boboId); 
 
         if (error) {
             console.error("Error fetching account count:", error);
-            return 0; // Or handle the error as needed
+            return 0; 
         }
 console.log("countaccounts ", count);
-        return count; // Return the count (will be a number)
+        return count; 
     } catch (error) {
         console.error("Unexpected error:", error);
-        return 0; // Handle errors
+        return 0; 
     }
 }

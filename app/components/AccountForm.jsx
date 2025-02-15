@@ -1,26 +1,22 @@
 
 
 export default function AccountForm({accounts, setAccounts}) {
-    // const [details, setDetails] = useState([{name: "", phone: ""}]);
 
     const addAccount = (name) => {
         if(name!==""){
             setAccounts([...accounts, {name: "", phone: ""}])
-            // accounts([...details, {name: "", phone: ""}])
 
         } }
     const removeAccount = (index) => {
         if(accounts.length > 1){
             const update = accounts.filter((_, i) => i != index);
             setDetails(update);
-            // setAccounts(update);
         }
     }
 
     const handleChange = (index, field, value) => {
         const update = [...accounts];
         update[index][field] = value;
-        // setDetails(update);
         setAccounts(update);
     }
 

@@ -6,8 +6,6 @@ import { Button } from "@/components/ui/button";
 
 
 export default function CreateBoboForm({nextStep, updateFormData, formData}) {
-
-    // const [formState, formAction] = useActionState(createBobo, {});
     const [startDate, setStartDate] = useState(moment(new Date()).format("YYYY-MM-DD"));
     const initialData = {
         duration: 25,
@@ -25,7 +23,6 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
             setIsMissingTitle(false);
     },[formData.title])
 
-    // Handle input changes
     const handleChange = (field, value) => {
         updateFormData({
             [field]: value

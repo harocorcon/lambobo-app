@@ -10,14 +10,12 @@ export default function TransactionForm({prevStep, updateFormData, handleCreate}
         updateFormData({transactionTypes: tranTypes})
     }, [tranTypes])
 
-    // Handle input changes
     const handleChange = (index, field, value) => {
         const updated = [...tranTypes];
         updated[index][field] = value;
         setTranTypes(updated);
     };
 
-    // Add a new transaction form
     const addTransaction = () => {
         setTranTypes([...tranTypes, { label: "", amount: "10", isOptional: false }]);
     };

@@ -28,8 +28,8 @@ export async function createBobo(formData){
                 startdate: formData.startDate
             }
             ])
-            .select("*")  // ✅ Fetch inserted row
-            .single();   // ✅ Return only one row
+            .select("*") 
+            .single(); 
         
         if(boboError) throw boboError;
 
@@ -67,7 +67,7 @@ export async function getBoboCycle(boboId){
     const supabase = createClient();
     const { data: userData } = await (await supabase).auth.getUser();
     
-    if (!userData?.user) { // Simplified check for user
+    if (!userData?.user) {
       redirect('/login');
     }
 
@@ -97,7 +97,6 @@ export async function getTransactionTypes(boboId){
 
 
 export async function getBoboSummary(boboId){
-    // boboName, schedule, interest, transactiontypes (3), #of members
     const bobo = await getBoboCycle(boboId);
     const types = await getTransactionTypes(boboId);
     const typeLabels = types.map(type => type.label);

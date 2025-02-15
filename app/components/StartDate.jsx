@@ -2,7 +2,6 @@
 import { useState } from "react";
 import "react-datetime/css/react-datetime.css"
 import moment from "moment";
-// import DatePicker from "react-datepicker";
 import Datetime from "react-datetime";
 
 export default function StartDate({ formData, updateFormData }) {
