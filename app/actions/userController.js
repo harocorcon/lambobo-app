@@ -70,7 +70,6 @@ export async function signup(prevState, formData){
 }
 
 export async function logout(){
-    console.log("logging out");
     const supabase = createClient()
     const { error } = await (await supabase).auth.signOut();
 
@@ -80,4 +79,11 @@ export async function logout(){
 
     revalidatePath('/login')
     revalidatePath('/')
+}
+
+export async function isUserValid() {
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+
+    return data.user;
 }
