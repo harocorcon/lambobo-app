@@ -2,6 +2,7 @@
 
 import { createClient } from "../utils/supabase/server";
 import { redirect } from "next/navigation";
+import { countAccounts } from "./accountController";
 
 
 export async function createBobo(formData){
@@ -94,4 +95,46 @@ export async function getTransactionTypes(boboId){
     return { data: types, error: null }
 }
 
-  
+
+export async function getBoboSummary(boboId){
+    // boboName, schedule, interest, transactiontypes (3), #of members
+    const bobo = await getBoboCycle(boboId);
+    const types = await getTransactionTypes(boboId);
+    const typeLabels = types.map(type => type.label);
+    const accountsCount = await countAccounts(boboId);
+    
+    return {
+        bobo,
+        typeLabels,
+        accountsCount
+    }
+}
+
+export async function getAllBoboSummary(){
+    const supabase = createClient();
+    let boboList = {};
+
+    try{
+        const { data, error } = await (await supabase).from('bobo_cycles').select('*');
+        if(error){
+            console.error(error);
+            throw error;
+        }
+        boboList = data
+    } catch(error) {
+        console.error("Unexpected error: ", error);
+    }
+    let summary = boboList.map(async (bobo) => {
+        const { id } = bobo;
+        const { data: types } = await getTransactionTypes(id);
+        const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
+        
+        console.log(typeLabels)
+        const accountsCount = await countAccounts(id);
+        return {
+            bobo, typeLabels, accountsCount
+        }
+        
+    })
+    return await Promise.all(summary);
+}

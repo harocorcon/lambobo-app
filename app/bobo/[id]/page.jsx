@@ -7,7 +7,7 @@ export default async function BoboPage({ params }) {
     const { data: bobo } = await getBoboCycle(boboId)
 
     const { data: types} = await getTransactionTypes(boboId);
-    const typeLabels = types.map(type => type.label)
+    const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
   
     return (
         <div >
