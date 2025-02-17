@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-export default function AccountForm({accounts, setAccounts, disabled}) {
+export default function AccountForm({accounts, setAccounts, disabled, savedCount=0}) {
 
     const addAccount = (name) => {
         if(name!==""){
@@ -25,21 +25,21 @@ export default function AccountForm({accounts, setAccounts, disabled}) {
             <div 
             key={index}
              className="flex items-center justify-between border-b p-2">
-                <p className="text-xs mr-4">{index+1}</p>
+                <p className="text-xs mr-4">{savedCount>-1? (savedCount+index+1):index+1}</p>
                 <input
                     disabled={disabled}
                     type="text"
                     placeholder="Name"
                     value={account.name}
                     onChange={(e) => handleChange(index, 'name', e.target.value)}
-                    className="bg-gray-100 flex-1 text-xs p-1 outline-none rounded"
+                    className="bg-gray-100 flex-1 text-xs p-1 outline-none rounded border focus:border-green-500 focus:outline-none"
                 />
                 <input
                     type="text"
                     placeholder="Phone"
                     value={account.phone}
                     onChange={(e) => handleChange(index, 'phone', e.target.value)}
-                    className="bg-gray-100 flex-1 p-1 text-xs outline-none ml-1 rounded"
+                    className="bg-gray-100 flex-1 p-1 text-xs outline-none ml-1 rounded  border focus:border-green-500"
                     disabled={disabled}
                 />
                 
