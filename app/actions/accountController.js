@@ -9,6 +9,9 @@ export async function createAccounts(accounts, boboId){
     if (!data?.user) {
         redirect('/login');
     }
+    // verify that the last element is not empty
+    if(accounts[accounts.length-1].name=='')
+        accounts = accounts.slice(0, accounts.length-1);
     try {
         const { data, error } = await (await supabase)
                 .from('accounts')
@@ -50,10 +53,48 @@ export async function countAccounts(boboId){
             console.error("Error fetching account count:", error);
             return 0; 
         }
-console.log("countaccounts ", count);
         return count; 
     } catch (error) {
         console.error("Unexpected error:", error);
         return 0; 
     }
 }
+
+export async function getAccounts(boboId){
+    const supabase = createClient();
+    try {
+        const { data: accounts, error } = await (await supabase)
+        .from('accounts')
+        .select('*') 
+        .eq('bobocycle_id', boboId); 
+
+        if (error) {
+            console.error("Error fetching account count:", error);
+            return 0; 
+        }
+        return accounts; 
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        return 0; 
+    }
+}
+
+export async function deleteAllAccounts(boboId){
+    const supabase = createClient();
+    try {
+        const { error: deleteError } = await (await supabase)
+            .from('accounts')
+            .delete()
+            .eq('bobocycle_id', boboId);
+
+        if (deleteError) {
+            console.error("Error deleting existing accounts:", deleteError);
+            return; 
+        }
+
+        } catch (error) {
+            console.error("Error saving accounts:", error);
+        } finally {
+            console.log("lemme sleep")
+        }   
+} 

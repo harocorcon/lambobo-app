@@ -105,7 +105,6 @@ export async function getBoboSummary(boboId){
     const summary = {
         bobo, typeLabels, accountsCount
     }
-console.log("summary ", summary)
     return summary;
 }
 
