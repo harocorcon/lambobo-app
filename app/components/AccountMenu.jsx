@@ -49,6 +49,7 @@ export default function AccountMenu({boboDetails}) {
             console.error("Error saving accounts:", error);
         } finally {
             setSaving(false);   
+            setShowForm(false);
         }
     };
 
