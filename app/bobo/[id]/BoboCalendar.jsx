@@ -11,45 +11,20 @@ import {
   format,
   getDay,
   isEqual,
-  isSameDay,
   isSameMonth,
   isToday,
   parse,
-  parseISO,
   startOfToday,
   subMonths,
 } from 'date-fns'
+import Link from "next/link";
+// import { useRouter } from "next/router";
 
 
 export default function BoboCalendar({ boboDetails }){
-    const [sessions, setSessions] = useState([]);
-    const [currentWeek, setCurrentWeek] = useState(dayjs()); // Start with current week
-    const [selectedDate, setSelectedDate] = useState(new Date());
+    // const router = useRouter();
     const { bobo } = boboDetails;
-    
-
-    useEffect(() => {
-        console.log("bobocalendar ", boboDetails)
-        let sessions = generateSessions(bobo.startdate, bobo.duration)
-        setSessions(sessions)
-    }, [boboDetails]);
-
-    const generateSessions = (start, duration) => {
-        const sessions = [];
-        let currentDate = dayjs(start).startOf('isoWeek');
-
-        for (let i = 0; i < duration; i++) {
-            sessions.push(
-            {
-                sessionNumber: i + 1,
-                sessionDate: currentDate.format('YYYY-MM-DD'),
-            }
-        );
-            currentDate = currentDate.add(1, 'week');
-        }
-
-        return sessions;
-    }
+    const [sessions, setSessions] = useState([{session: 0, sessionDate: bobo.startdate}]);
 
     let today = startOfToday()
     let [selectedDay, setSelectedDay] = useState(today)
@@ -60,6 +35,28 @@ export default function BoboCalendar({ boboDetails }){
         end: endOfMonth(firstDayCurrentMonth),
     })
 
+    useEffect(() => {
+        let sessions = generateSessions(bobo.startdate, bobo.duration)
+        setSessions(sessions)
+    }, [boboDetails]);
+
+
+    const generateSessions = (start, duration) => {
+        const sessions = [];
+        let currentDate = dayjs(start).startOf('isoWeek');
+
+        for (let i = 0; i < duration; i++) {
+            sessions.push({
+                sessionNumber: i + 1,
+                sessionDate: currentDate.format('YYYY-MM-DD'),
+            }
+        );
+            currentDate = currentDate.add(1, 'week');
+        }
+
+        return sessions;
+    }
+
     function previousMonth() {
         let firstDayNextMonth = add(firstDayCurrentMonth, { months: -1 })
         setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
@@ -69,8 +66,14 @@ export default function BoboCalendar({ boboDetails }){
         setCurrentMonth(format(firstDayNextMonth, 'MMM-yyyy'))
     }
 
-    function handleDate(day){
-        setSelectedDate(day);
+    const handleDate = (day) => {
+        setSelectedDay(day);
+    }
+
+    const isSessionDay = (day) => {
+        let session = sessions.findIndex((session) => isEqual(day, dayjs(session.sessionDate)));
+        console.log("session selected ", session)
+        return session;
     }
 
     return (
@@ -121,37 +124,47 @@ export default function BoboCalendar({ boboDetails }){
                                 'py-1.5'
                                 )}
                             >
-                                <button
-                                    type="button"
-                                    onClick={() => {handleDate(day)}}
-                                    className={classNames(
-                                        isEqual(day, selectedDay) && 'text-white',
-                                        !isEqual(day, selectedDay) &&
-                                        isToday(day) &&
-                                        'text-red-500',
-                                        !isEqual(day, selectedDay) &&
-                                        !isToday(day) &&
-                                        isSameMonth(day, firstDayCurrentMonth) &&
-                                        'text-gray-900',
-                                        !isEqual(day, selectedDay) &&
-                                        !isToday(day) &&
-                                        !isSameMonth(day, firstDayCurrentMonth) &&
-                                        'text-gray-400',
-                                        isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
-                                        isEqual(day, selectedDay) &&
-                                        !isToday(day) &&
-                                        'bg-gray-900',
-                                        !isEqual(day, selectedDay) && 'hover:bg-gray-200',
-                                        (isEqual(day, selectedDay) || isToday(day)) &&
-                                        'font-semibold',
-                                        sessions.some((session) => isEqual(day, dayjs(session.sessionDate))) &&
-                                        'border border-blue-500 hover:bg-sky-500',
-                                        'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
-                                    )}>
-                                        <time dateTime={format(day, 'yyyy-MM-dd')}>
+                                { isSessionDay(day) >= 0 ? (
+                                    <Link href={`${bobo.id}/session/${isSessionDay(day) + 1}`}>
+                                        <button
+                                        type="button"
+                                        className="border border-blue-500 hover:bg-sky-500 bg-sky-400 mx-auto flex h-8 w-8 items-center justify-center rounded-full">
                                             {format(day, 'd')}
-                                        </time>
-                                </button>
+                                        </button>
+                                    </Link>
+                                ) : (
+                                    <button
+                                        type="button"
+                                        onClick={() => {()=> handleDate(day)}}
+                                        className={classNames(
+                                            isEqual(day, selectedDay) && 'text-white',
+                                            !isEqual(day, selectedDay) &&
+                                            isToday(day) &&
+                                            'text-red-500',
+                                            !isEqual(day, selectedDay) &&
+                                            !isToday(day) &&
+                                            isSameMonth(day, firstDayCurrentMonth) &&
+                                            'text-gray-900',
+                                            !isEqual(day, selectedDay) &&
+                                            !isToday(day) &&
+                                            !isSameMonth(day, firstDayCurrentMonth) &&
+                                            'text-gray-400',
+                                            isEqual(day, selectedDay) && isToday(day) && 'bg-red-500',
+                                            isEqual(day, selectedDay) &&
+                                            !isToday(day) &&
+                                            'bg-gray-900',
+                                            !isEqual(day, selectedDay) && 'hover:bg-gray-200',
+                                            (isEqual(day, selectedDay) || isToday(day)) &&
+                                            'font-semibold',
+                                            // sessions.some((session) => isEqual(day, dayjs(session.sessionDate))) &&
+                                            // 'border border-blue-500 hover:bg-sky-500 bg-sky-400',
+                                            'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
+                                        )}>
+                                            <time dateTime={format(day, 'yyyy-MM-dd')}>
+                                                {format(day, 'd')}
+                                            </time>
+                                    </button>
+                                )}
                             
                             </div>
                         ))}

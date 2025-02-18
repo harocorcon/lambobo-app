@@ -4,6 +4,7 @@ import BoboCard from "../../components/BoboCard";
 import { isUserValid } from "@/app/actions/userController";
 import { redirect } from "next/dist/server/api-utils";
 import BoboCalendar from "./BoboCalendar"
+import dayjs from "dayjs";
 
 export default async function BoboPage({ params }) {
     const { id } = await params;
@@ -12,11 +13,11 @@ export default async function BoboPage({ params }) {
     if(!isUserValid()){
         redirect("/login"); //Feb15 it redirects even without this
     }
-  
+
     return (
         <>
             <BoboCard boboDetails={boboDetails} />
-            <AccountMenu boboDetails={boboDetails} />
+            {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} />}
             <BoboCalendar boboDetails={boboDetails} />
         </>
     )
