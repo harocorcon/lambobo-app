@@ -95,6 +95,5 @@ export async function deleteAllAccounts(boboId){
         } catch (error) {
             console.error("Error saving accounts:", error);
         } finally {
-            console.log("lemme sleep")
         }   
 } 

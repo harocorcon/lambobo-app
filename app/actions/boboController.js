@@ -127,7 +127,6 @@ export async function getAllBoboSummary(){
         const { data: types } = await getTransactionTypes(id);
         const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
         
-        console.log(typeLabels)
         const accountsCount = await countAccounts(id);
         return {
             bobo, typeLabels, accountsCount

@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from '@heroicons/react/solid'
 import {
   add,
+  addMonths,
   eachDayOfInterval,
   endOfMonth,
   format,
@@ -16,6 +17,7 @@ import {
   parse,
   parseISO,
   startOfToday,
+  subMonths,
 } from 'date-fns'
 
 
@@ -24,12 +26,12 @@ export default function BoboCalendar({ boboDetails }){
     const [currentWeek, setCurrentWeek] = useState(dayjs()); // Start with current week
     const [selectedDate, setSelectedDate] = useState(new Date());
     const { bobo } = boboDetails;
+    
 
     useEffect(() => {
         console.log("bobocalendar ", boboDetails)
         let sessions = generateSessions(bobo.startdate, bobo.duration)
         setSessions(sessions)
-        console.log(sessions)
     }, [boboDetails]);
 
     const generateSessions = (start, duration) => {
@@ -69,12 +71,6 @@ export default function BoboCalendar({ boboDetails }){
 
     function handleDate(day){
         setSelectedDate(day);
-        let test = sessions.map((session) => {
-            isEqual(day, dayjs(session.sessionDate))
-            console.log(day, " vs ", dayjs(session.sessionDate))
-        })
-        // sessions.some((session) => day.format('YYYY-MM-DD') === dayjs(session.sessionDate).format('YYYY-MM-DD'))
-        console.log(day, "-", sessions.length, "=", test)
     }
 
     return (
@@ -89,6 +85,7 @@ export default function BoboCalendar({ boboDetails }){
                         <button
                         type="button"
                         onClick={previousMonth}
+                        disabled={isSameMonth(currentMonth, subMonths(format(bobo.startdate, 'MMM-yyyy'), 1))}
                         className="-my-1.5 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
                         >
                         <span className="sr-only">Previous month</span>
@@ -96,6 +93,7 @@ export default function BoboCalendar({ boboDetails }){
                         </button>
                         <button
                         onClick={nextMonth}
+                        disabled={isSameMonth(currentMonth, addMonths(format(sessions[sessions.length - 1].sessionDate, 'MMM-yyyy'), 1))}
                         type="button"
                         className="-my-1.5 -mr-1.5 ml-2 flex flex-none items-center justify-center p-1.5 text-gray-400 hover:text-gray-500"
                         >
@@ -147,7 +145,7 @@ export default function BoboCalendar({ boboDetails }){
                                         (isEqual(day, selectedDay) || isToday(day)) &&
                                         'font-semibold',
                                         sessions.some((session) => isEqual(day, dayjs(session.sessionDate))) &&
-                                        'border border-red-500',
+                                        'border border-blue-500 hover:bg-sky-500',
                                         'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                                     )}>
                                         <time dateTime={format(day, 'yyyy-MM-dd')}>
