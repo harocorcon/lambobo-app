@@ -72,7 +72,6 @@ export default function BoboCalendar({ boboDetails }){
 
     const isSessionDay = (day) => {
         let session = sessions.findIndex((session) => isEqual(day, dayjs(session.sessionDate)));
-        console.log("session selected ", session)
         return session;
     }
 
