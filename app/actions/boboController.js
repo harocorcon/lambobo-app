@@ -99,11 +99,12 @@ export async function getTransactionTypes(boboId){
 export async function getBoboSummary(boboId){
     const { data: bobo} = await getBoboCycle(boboId);
     const { data: types } = await getTransactionTypes(boboId);
-    const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
+    // const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
     const accountsCount = await countAccounts(boboId);
     
     const summary = {
-        bobo, typeLabels, accountsCount
+        bobo, types, accountsCount
+        // bobo, typeLabels, accountsCount
     }
     return summary;
 }
@@ -125,11 +126,12 @@ export async function getAllBoboSummary(){
     let summary = boboList.map(async (bobo) => {
         const { id } = bobo;
         const { data: types } = await getTransactionTypes(id);
-        const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
+        // const typeLabels = types && Array.isArray(types)? types.map(type => type.label): [];
         
         const accountsCount = await countAccounts(id);
         return {
-            bobo, typeLabels, accountsCount
+            // bobo, typeLabels, accountsCount
+            bobo, types, accountsCount
         }
         
     })

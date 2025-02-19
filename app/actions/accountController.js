@@ -60,7 +60,7 @@ export async function countAccounts(boboId){
     }
 }
 
-export async function getAccounts(boboId){
+export async function getBoboAccounts(boboId){
     const supabase = createClient();
     try {
         const { data: accounts, error } = await (await supabase)

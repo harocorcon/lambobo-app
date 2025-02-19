@@ -2,8 +2,7 @@ import dayjs from "dayjs";
 import Link from "next/link";
 
 export default function BoboCard({ boboDetails }) {
-    const { bobo, accountsCount, typeLabels } = boboDetails;
-    
+    const { bobo, accountsCount, types } = boboDetails;
     const getSchedule = (start, length) => {
         let end = dayjs(start).add(length, "week").format("YYYY-MM-DD");
         return dayjs(start).format('MMMM DD, YYYY') + " to " + dayjs(end).format('MMMM DD, YYYY') + " ("+length+" weeks)"
@@ -29,12 +28,12 @@ export default function BoboCard({ boboDetails }) {
                     <div className="flex items-center">
                         <p className="font-bold  mr-2">Transaction Types:</p>
                         <div className="flex flex-wrap gap-2"> {/* Use flexbox for layout */}
-                        {typeLabels.map((type, key) => (
+                        {types && types.map((type, key) => (
                             <button
                                 key={key}
                                 className="bg-sky-100 hover:bg-sky-200 text-gray-700 font-medium rounded-xl text-xs px-2 py-0 border border-gray-200" 
                             >
-                            {type}
+                            {type.label}
                             </button>
                         ))}
                         </div>

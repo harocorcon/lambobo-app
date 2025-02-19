@@ -3,7 +3,7 @@
 import dayjs from "dayjs"
 import { useState, useEffect } from "react"
 import AccountForm from "./AccountForm"
-import { createAccounts, getAccounts } from "../actions/accountController"
+import { createAccounts, getBoboAccounts } from "../actions/accountController"
 
 export default function AccountMenu({boboDetails}) {
     const [showForm, setShowForm] = useState(false);
@@ -24,7 +24,7 @@ export default function AccountMenu({boboDetails}) {
 
     const fetchAccounts = async() => {
         try {
-            const data = await getAccounts(boboId);
+            const data = await getBoboAccounts(boboId);
             setAccounts(data);
         } catch (error) {
             console.error("Error fetching accounts:", error);
