@@ -13,8 +13,7 @@ export default async function SessionPage({ params }){
             <div className="justify-center items-center">
             <BoboCard boboDetails={boboDetails} />
             <h1>Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
-            <SessionTabs typeLabels={boboDetails.typeLabels} />
-            <TransactionTable />
+            <SessionTabs boboDetails={boboDetails} />
             </div>
         </div>
     )
