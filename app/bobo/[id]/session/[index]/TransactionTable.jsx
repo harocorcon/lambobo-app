@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 
-export default function TransactionTable({data}){
+export default function TransactionTable({data, saveDataFromTable}){
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0);
     
@@ -31,7 +31,6 @@ export default function TransactionTable({data}){
             });
             return newRows;
         });
-        
     }
     return (
         <div className="flex flex-col mt-3">
@@ -78,6 +77,10 @@ export default function TransactionTable({data}){
                 </div>
                 <div className="flex items-center text-center justify-center">
                     <p>Total: {total}</p>
+                    <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
+                        onClick={()=>saveDataFromTable(rows)}>
+                        Submit
+                    </button>
                 </div>
                 </div>
             </div>
