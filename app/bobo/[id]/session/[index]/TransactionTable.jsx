@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 
-export default function TransactionTable({data, saveDataFromTable}){
+export default function TransactionTable({disabledOperations, data, saveDataFromTable}){
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0);
     
@@ -54,7 +54,7 @@ export default function TransactionTable({data, saveDataFromTable}){
                                 <td key={"amt-"+key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                                     {d.amount}
                                     {d.status != -1 &&
-                                        (<button onClick={()=>setStatus(key, -1)}>
+                                        (<button onClick={()=>setStatus(key, -1)} disabled={disabledOperations}>
                                         {d.status > 0 ? (<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 text-green-600 inline-flex ml-3">
                                             <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                         </svg>) : (
@@ -63,12 +63,11 @@ export default function TransactionTable({data, saveDataFromTable}){
                                         </svg>)}
                                         </button>
                                 )}
-
                                 </td> 
                                 <td key={"actions-"+key} className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                    <button onClick={()=>setStatus(key, 1)} type="button" className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">PAY</button>
-                                    <button onClick={()=>setStatus(key, 0)} type="button" className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">PASS</button>
-                            </td>
+                                    <button disabled={disabledOperations} onClick={()=>setStatus(key, 1)} type="button" className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">PAY</button>
+                                    <button disabled={disabledOperations} onClick={()=>setStatus(key, 0)} type="button" className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">PASS</button>
+                                </td>
                             </tr>
                             ))
                         }
@@ -77,7 +76,8 @@ export default function TransactionTable({data, saveDataFromTable}){
                 </div>
                 <div className="flex items-center text-center justify-center">
                     <p>Total: {total}</p>
-                    <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md"
+                    <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
+                        disabled={disabledOperations}
                         onClick={()=>saveDataFromTable(rows)}>
                         Submit
                     </button>

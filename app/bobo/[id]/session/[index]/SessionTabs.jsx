@@ -5,6 +5,7 @@ import TransactionTable from "./TransactionTable";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions } from "@/app/actions/transactionController";
 import dayjs from "dayjs";
+import { addWeeks, format } from "date-fns";
 
 export default function SessionTabs({boboDetails, index}){
     const { bobo, types } = boboDetails;
@@ -12,7 +13,9 @@ export default function SessionTabs({boboDetails, index}){
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [accounts, setAccounts] = useState([]);
-
+    const [disabledOperations, setDisabledOperations] = useState(false);
+    const [isDataSaved, setIsDataSaved] = useState(types.map(() => false));
+    const sessionDate = addWeeks(bobo.startdate, index - 1)
     const fetchAccounts = async() => {
         try {
             const accounts = await getBoboAccounts(bobo.id);
@@ -25,11 +28,12 @@ export default function SessionTabs({boboDetails, index}){
 
     useEffect(()=>{
         setData([]);
+        // setDisabledOperations(false);
         if(accounts.length > 0){
           let data = accounts.map((a) => ({
             bobocycle_id: bobo.id,
             session_number: index,
-            date: dayjs().format('YYYY-MM-DD'),
+            date: format(sessionDate, 'yyyy-mm-dd'),
             ttype_id: types[activeTab].id,
             amount: types[activeTab].amount,
             status: -1,
@@ -63,16 +67,16 @@ export default function SessionTabs({boboDetails, index}){
         setActiveTab(index);
     }
 
-    //saving happens here?
-    const saveDataFromTablez = (data) => {
-       //di ko kasabot nganng kada change sa status, maupdate ngari
-        console.log("prepared data for database: ", data);
-    }
-
     const saveDataFromTable = async (data) => {
         setIsLoading(true);
         try {
             await createTransactions(data);
+            setData(data);
+            setIsDataSaved((prev) => {
+                const updated = [...prev];
+                updated[activeTab] = true;
+                return updated;
+            })
         } catch (error) {
             console.error("Error saving accounts:", error);
         } finally {
@@ -82,19 +86,21 @@ export default function SessionTabs({boboDetails, index}){
 
     return (
         <div className="mt-2">
+            <h1 className="mx-auto">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
+
                 <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                     {types && types.map((type, index) => (
                         <li key={index} className="me-2 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
-                                className={`inline-block p-4 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 dark:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block p-4 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 >    {type.label}
                             </button>
                         </li>
                     ))}
                 </ul>
 
-            { !isLoading ? (<TransactionTable data={data} saveDataFromTable={saveDataFromTable}/>
+            { !isLoading ? (<TransactionTable disabledOperations={isDataSaved[activeTab]} data={data} saveDataFromTable={saveDataFromTable}/>
                 ) : (
                     <div className="mt-8 flex justify-center items-center">
                         <svg
