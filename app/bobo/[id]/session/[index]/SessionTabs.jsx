@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import TransactionTable from "./TransactionTable";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions } from "@/app/actions/transactionController";
-import dayjs from "dayjs";
 import { addWeeks, format } from "date-fns";
 
 export default function SessionTabs({boboDetails, index}){
@@ -33,7 +32,7 @@ export default function SessionTabs({boboDetails, index}){
           let data = accounts.map((a) => ({
             bobocycle_id: bobo.id,
             session_number: index,
-            date: format(sessionDate, 'yyyy-mm-dd'),
+            date: format(sessionDate, 'yyyy-MM-dd'),
             ttype_id: types[activeTab].id,
             amount: types[activeTab].amount,
             status: -1,
@@ -67,8 +66,9 @@ export default function SessionTabs({boboDetails, index}){
         setActiveTab(index);
     }
 
-    const saveDataFromTable = async (data) => {
+    const saveDataFromTable = async (cleaned) => {
         setIsLoading(true);
+        console.log("clean", cleaned);
         try {
             await createTransactions(data);
             setData(data);
@@ -100,7 +100,13 @@ export default function SessionTabs({boboDetails, index}){
                     ))}
                 </ul>
 
-            { !isLoading ? (<TransactionTable disabledOperations={isDataSaved[activeTab]} data={data} saveDataFromTable={saveDataFromTable}/>
+            { !isLoading ? 
+                (<TransactionTable 
+                    disabledOperations={isDataSaved[activeTab]} 
+                    data={data} 
+                    saveDataFromTable={saveDataFromTable}
+                    isOptional={types[activeTab].isOptional}
+                />
                 ) : (
                     <div className="mt-8 flex justify-center items-center">
                         <svg

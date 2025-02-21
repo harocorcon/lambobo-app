@@ -3,14 +3,27 @@
 import { useEffect, useState } from "react";
 
 
-export default function TransactionTable({disabledOperations, data, saveDataFromTable}){
+export default function TransactionTable({disabledOperations, data, isOptional, saveDataFromTable}){
     const [rows, setRows] = useState([]);
-    const [total, setTotal] = useState(0);
+    const [total, setTotal] = useState(0)
+    const [error, setError] = useState({});
+    const [disableSubmit, setDisableSubmit] = useState(false);
     
     useEffect(()=>{
         setRows(data)
         setTotal(0);
+        setError({});
     }, [data]);
+
+    useEffect(()=>{
+        setDisableSubmit(false)
+        if(!isOptional){
+            rows.map((r)=>{
+                if(r.status < 0)
+                    setDisableSubmit(true)
+            })
+        }
+    }, [rows])
     
     const setStatus = (key, value) => {
         let currentStatus = rows[key].status;
@@ -32,6 +45,28 @@ export default function TransactionTable({disabledOperations, data, saveDataFrom
             return newRows;
         });
     }
+
+    const isDataComplete = () =>{
+        console.log("cleaning data...", isOptional)
+        
+        if(isOptional){
+            console.log("data is optional")
+            setRows((prevRows) => {
+                return prevRows.filter((row) => row.status !== -1)
+            });
+        }
+
+        else{
+            rows.map((r) =>{
+                if( r.status < 0){
+                    setError({ success: false, message: 'Please recheck, you missed some rows.'});
+                    return;
+                }
+            })
+        }
+        if(!error)
+            saveDataFromTable(rows);
+    }
     return (
         <div className="flex flex-col mt-3">
             <div className="-m-1.5 overflow-x-auto">
@@ -42,7 +77,13 @@ export default function TransactionTable({disabledOperations, data, saveDataFrom
                         <tr>
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"></th>
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Name</th>
-                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Amount</th>
+                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Amount
+                            {!isOptional && 
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4 text-red-500 ml-3 inline-block">
+                                    <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
+                                </svg>
+                              }
+                        </th>
                         <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Action</th>
                         </tr>
                     </thead>
@@ -74,11 +115,16 @@ export default function TransactionTable({disabledOperations, data, saveDataFrom
                     </tbody>
                     </table>
                 </div>
+                { error &&
+                    <div className="p-2 text-xs text-red-400 text-center justify-center items-center">
+                        <p>{error.message}</p>
+                    </div>
+                }
                 <div className="flex items-center text-center justify-center">
                     <p>Total: {total}</p>
                     <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
-                        disabled={disabledOperations}
-                        onClick={()=>saveDataFromTable(rows)}>
+                        disabled={disableSubmit}
+                        onClick={()=>isDataComplete()}>
                         Submit
                     </button>
                 </div>

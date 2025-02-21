@@ -9,7 +9,6 @@ export async function createTransactions( transactions ){
     if (!data?.user) {
         redirect('/login');
     }
-        console.log("controller/createTransactions" ,transactions);
     try {
         const { data, error } = await (await supabase)
                 .from('transactions')

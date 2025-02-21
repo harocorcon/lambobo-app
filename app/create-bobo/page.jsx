@@ -23,7 +23,6 @@ export default function CreateBobo() {
     }
 
     const submitToController = () => {
-        console.log(formData.transactionTypes, "submitToController", formData);
         createBobo(formData); //wala ni sya gi await o!
     }
 
