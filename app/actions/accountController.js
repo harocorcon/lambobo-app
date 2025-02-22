@@ -60,7 +60,7 @@ export async function countAccounts(boboId){
     }
 }
 
-export async function getBoboAccounts(boboId){
+export async function getBoboAccounts(boboId){ // getAccountsByBobo
     const supabase = createClient();
     try {
         const { data: accounts, error } = await (await supabase)
@@ -96,4 +96,4 @@ export async function deleteAllAccounts(boboId){
             console.error("Error saving accounts:", error);
         } finally {
         }   
-} 
+}

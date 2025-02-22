@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import TransactionTable from "./TransactionTable";
+import { getLoansByBobo } from "@/app/actions/loanController";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions } from "@/app/actions/transactionController";
 import { addWeeks, format } from "date-fns";
@@ -35,6 +36,16 @@ export default function SessionTabs({boboDetails, index}){
             return [];
         }
     }
+        
+    const fetchLoans = async() => {
+        try {
+            const loansfromdb = await getLoansByBobo(bobo.id);
+            return loansfromdb;
+        } catch (error) {
+            console.error(" Error fetching loans. ", error)
+            return [];
+        }
+    }
 
     useEffect(()=>{
         setData([]);
@@ -61,6 +72,7 @@ export default function SessionTabs({boboDetails, index}){
           setIsLoading(true);
           try {
             setAccounts(await fetchAccounts());
+            setLoans(await fetchLoans());
             setIsLoading(false);
           } catch (err) {
             console.error(err);
