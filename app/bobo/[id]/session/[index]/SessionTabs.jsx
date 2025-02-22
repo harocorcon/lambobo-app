@@ -12,9 +12,20 @@ export default function SessionTabs({boboDetails, index}){
     const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [accounts, setAccounts] = useState([]);
-    const [disabledOperations, setDisabledOperations] = useState(false);
     const [isDataSaved, setIsDataSaved] = useState(types.map(() => false));
     const sessionDate = addWeeks(bobo.startdate, index - 1)
+    const [loans, setLoans] = useState([]);
+
+    let loanTab =
+        {
+            amount: -1, 
+            bobocycle_id: bobo.id, 
+            id: -1, 
+            isOptional: true, 
+            label: 'Loans'
+        };
+    const tabs = [...types, loanTab];
+    
     const fetchAccounts = async() => {
         try {
             const accounts = await getBoboAccounts(bobo.id);
@@ -33,8 +44,8 @@ export default function SessionTabs({boboDetails, index}){
             bobocycle_id: bobo.id,
             session_number: index,
             date: format(sessionDate, 'yyyy-MM-dd'),
-            ttype_id: types[activeTab].id,
-            amount: types[activeTab].amount,
+            ttype_id: tabs[activeTab].id,
+            amount: tabs[activeTab].amount,
             status: -1,
             account_id: a.id,
             name: a.name,
@@ -58,7 +69,6 @@ export default function SessionTabs({boboDetails, index}){
         };
     
         fetchData(); // Call the async function
-    
       }, [bobo]);
     
     
@@ -89,7 +99,7 @@ export default function SessionTabs({boboDetails, index}){
             <h1 className="mx-auto">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
 
                 <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
-                    {types && types.map((type, index) => (
+                    {tabs.map((type, index) => (
                         <li key={index} className="me-2 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
@@ -105,7 +115,8 @@ export default function SessionTabs({boboDetails, index}){
                     disabledOperations={isDataSaved[activeTab]} 
                     data={data} 
                     saveDataFromTable={saveDataFromTable}
-                    isOptional={types[activeTab].isOptional}
+                    isOptional={tabs[activeTab].isOptional}
+                    isLoanTab={activeTab === tabs.length-1}
                 />
                 ) : (
                     <div className="mt-8 flex justify-center items-center">

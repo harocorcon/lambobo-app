@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 
 
-export default function TransactionTable({disabledOperations, data, isOptional, saveDataFromTable}){
+export default function TransactionTable({isLoanTab, disabledOperations, data, isOptional, saveDataFromTable}){
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0)
     const [error, setError] = useState({});
@@ -77,12 +77,13 @@ export default function TransactionTable({disabledOperations, data, isOptional, 
                         <tr>
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase"></th>
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Name</th>
+                        {isLoanTab && <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Loan</th>}
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Amount
                             {!isOptional && 
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4 text-red-500 ml-3 inline-block">
                                     <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
                                 </svg>
-                              }
+                            }
                         </th>
                         <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Action</th>
                         </tr>
@@ -92,6 +93,7 @@ export default function TransactionTable({disabledOperations, data, isOptional, 
                             (<tr key={key} className="hover:bg-gray-100">
                                 <td key={"cntr-"+key} className="px-2 py-4 whitespace-nowrap text-xs font-medium text-gray-500">{key+1}</td>
                                 <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{d.name}</td>
+                                {isLoanTab && <td key={"loan-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">102345</td>}
                                 <td key={"amt-"+key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                                     {d.amount}
                                     {d.status != -1 &&
@@ -121,7 +123,7 @@ export default function TransactionTable({disabledOperations, data, isOptional, 
                     </div>
                 }
                 <div className="flex items-center text-center justify-center">
-                    <p>Total: {total}</p>
+                    <p className="mr-6 w-24">Total: {total}</p>
                     <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
                         disabled={disableSubmit}
                         onClick={()=>isDataComplete()}>
