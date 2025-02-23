@@ -1,7 +1,4 @@
 import { useEffect, useState } from "react"
-import { createBobo } from "../actions/boboController";
-
-
 
 export default function TransactionForm({prevStep, updateFormData, handleCreate}) {
     const init = {
@@ -13,14 +10,12 @@ export default function TransactionForm({prevStep, updateFormData, handleCreate}
         updateFormData({transactionTypes: tranTypes})
     }, [tranTypes])
 
-    // Handle input changes
     const handleChange = (index, field, value) => {
         const updated = [...tranTypes];
         updated[index][field] = value;
         setTranTypes(updated);
     };
 
-    // Add a new transaction form
     const addTransaction = () => {
         setTranTypes([...tranTypes, { label: "", amount: "10", isOptional: false }]);
     };
@@ -31,11 +26,6 @@ export default function TransactionForm({prevStep, updateFormData, handleCreate}
             setTranTypes(updated);
         }
     };
-
-    // const prepareData=()=>{
-    //     updateFormData({transactionTypes: tranTypes});
-    //     handleCreate();
-    // }
 
     return (
         <div className="w-full max-w-sm mx-auto space-y-4 p-6">
@@ -117,16 +107,6 @@ export default function TransactionForm({prevStep, updateFormData, handleCreate}
                         <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
                     </div>
                 </div>
-
-                {/* {trantype.label && index == (tranTypes.length-1) && (index < 5) && (
-                    <div className="flex">
-                        <button className="mt-5 mb-5 items-center mx-auto bg-sky-400 hover:bg-sky-600  text-white text-sm py-2 px-4 rounded"
-                            onClick={addTransaction}
-                        >
-                            +
-                        </button>
-                    </div>
-                )} */}
             </div>
             ))}
 

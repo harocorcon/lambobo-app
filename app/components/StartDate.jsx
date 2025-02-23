@@ -2,15 +2,19 @@
 import { useState } from "react";
 import "react-datetime/css/react-datetime.css"
 import moment from "moment";
-// import DatePicker from "react-datepicker";
 import Datetime from "react-datetime";
 
-export default function StartDate({ setStartDate }) {
-    const [selectedDate, setSelectedDate] = useState(new Date());
+export default function StartDate({ formData, updateFormData }) {
+    const [selectedDate, setSelectedDate] = useState(formData.startDate || new Date());
+    
     const handleDateChange = (date) => {
-        setSelectedDate(moment(date).format("YYYY-MM-DD"));
-        setStartDate(moment(date).format("YYYY-MM-DD"));
+        const formattedDate = moment(date).format("YYYY-MM-DD");
+        setSelectedDate(formattedDate);
+        updateFormData({
+            startDate: formattedDate,
+        });
     }
+
 
     return (
         <div>

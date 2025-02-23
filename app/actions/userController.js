@@ -14,7 +14,7 @@ export async function login(prevState, formData){
         });
 
         if (error) {
-            console.error('Error during login:', error.message); // Handling the error
+            console.error('Error during login:', error.message);
             return {
                 success: false,
                 error: error.message
@@ -36,23 +36,6 @@ export async function signup(prevState, formData){
         email: formData.get('email'),
         password: formData.get('password')
     }
-    console.log("signing in...", data)
-
-    // get all user.email and check if data.email is there alrdy
-
-    // try{
-    //     const { data, error } = await supabase
-    //         .from('Users')
-    //         .select('email')
-
-    //     if(data)
-    //         console.log('emails: ', data)
-    //     else
-    //         return error;
-    // } catch(error){
-    //     console.log("catch error")
-    //     return error;
-    // }
 
     const {error} = await supabase.auth.signUp(data);
     if(error){
@@ -70,7 +53,6 @@ export async function signup(prevState, formData){
 }
 
 export async function logout(){
-    console.log("logging out");
     const supabase = createClient()
     const { error } = await (await supabase).auth.signOut();
 
@@ -80,4 +62,11 @@ export async function logout(){
 
     revalidatePath('/login')
     revalidatePath('/')
+}
+
+export async function isUserValid() {
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+
+    return data.user;
 }

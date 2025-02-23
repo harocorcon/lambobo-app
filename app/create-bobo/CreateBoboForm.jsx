@@ -1,15 +1,11 @@
 
-import { useActionState, useEffect, useState } from "react"
-import TransactionForm from "./TransactionForm"
+import { useEffect, useState } from "react"
 import StartDate from "../components/StartDate"
-import { createBobo } from "../actions/boboController";
 import moment from "moment";
 import { Button } from "@/components/ui/button";
 
 
 export default function CreateBoboForm({nextStep, updateFormData, formData}) {
-
-    // const [formState, formAction] = useActionState(createBobo, {});
     const [startDate, setStartDate] = useState(moment(new Date()).format("YYYY-MM-DD"));
     const initialData = {
         duration: 25,
@@ -27,7 +23,6 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
             setIsMissingTitle(false);
     },[formData.title])
 
-    // Handle input changes
     const handleChange = (field, value) => {
         updateFormData({
             [field]: value
@@ -44,10 +39,7 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
     
     return (
         <div className="w-full max-w-sm mx-auto space-y-4 shadow p-6 Pb-6">
-            {/* <form  */}
-                {/* // action={formAction}  */}
-                {/* className="w-full max-w-sm mx-auto space-y-4"> */}
-                <div className="flex flex-wrap items-center border-b border-teal-500">
+            <div className="flex flex-wrap items-center border-b border-teal-500">
                     <input 
                         required 
                         className="appearance-none bg-transparent border-none w-full text-gray-800 mr-3 py-1 px-2 leading-tight focus:outline-none" 
@@ -85,7 +77,7 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
 
                     <div className="w-full mt-2">
                         
-                        <StartDate setStartDate={setStartDate}/>
+                        <StartDate formData={formData} updateFormData={updateFormData}/>
                         <input type="hidden" name="startDate" value={formData['startDate']}
                             onChange={(e) => handleChange("startDate", startDate)} />
                     </div>

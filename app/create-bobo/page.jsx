@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import CreateBoboForm from "./CreateBoboForm"
 import TransactionForm from "./TransactionForm";
 import { createBobo } from "../actions/boboController";
@@ -23,8 +23,7 @@ export default function CreateBobo() {
     }
 
     const submitToController = () => {
-        console.log(formData.transactionTypes, "submitToController", formData);
-        createBobo(formData);
+        createBobo(formData); //wala ni sya gi await o!
     }
 
     return (
