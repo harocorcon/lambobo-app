@@ -40,7 +40,6 @@ export async function createLoan( loanDetails ){
     }
 }
 
-
 export async function getLoansByBobo( bobo_id ){
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
@@ -52,7 +51,8 @@ export async function getLoansByBobo( bobo_id ){
         const { data, error } = await (await supabase)
                 .from('loans')
                 .select('*') 
-                .eq('bobocycle_id', bobo_id); 
+                .eq('bobocycle_id', bobo_id) 
+                .eq('is_active', true); 
     
         if (error){
             console.error(error)

@@ -39,19 +39,29 @@ export default function SessionTabs({boboDetails, index}){
         
     const fetchLoans = async() => {
         try {
-            const loansfromdb = await getLoansByBobo(bobo.id);
-            return loansfromdb;
+            const { data } = await getLoansByBobo(bobo.id);
+            return data;
         } catch (error) {
             console.error(" Error fetching loans. ", error)
             return [];
         }
     }
 
+    const getLoanByAccount = (account) =>{
+        let loan = loans.find((loan)=>(account === loan.account_id));
+        let interest = 0;
+        if(loan && loan.amount > 0){
+            interest = Math.ceil(((loan.amount * bobo.interest) / 100) / 4);
+            console.log("found a loaaaan! ", loan.account_id)
+        }
+        return {...loan, interest}
+    }
+
     useEffect(()=>{
         setData([]);
-        // setDisabledOperations(false);
         if(accounts.length > 0){
-          let data = accounts.map((a) => ({
+          let data = accounts.map((a) => {
+            return {
             bobocycle_id: bobo.id,
             session_number: index,
             date: format(sessionDate, 'yyyy-MM-dd'),
@@ -60,19 +70,19 @@ export default function SessionTabs({boboDetails, index}){
             status: -1,
             account_id: a.id,
             name: a.name,
-          }));
+            loan: getLoanByAccount(a.id),
+            }});
           
           setData(data);
         }
-
       }, [accounts, activeTab]);
 
     useEffect(() => {
         const fetchData = async () => {
           setIsLoading(true);
           try {
-            setAccounts(await fetchAccounts());
             setLoans(await fetchLoans());
+            setAccounts(await fetchAccounts());
             setIsLoading(false);
           } catch (err) {
             console.error(err);
@@ -90,7 +100,6 @@ export default function SessionTabs({boboDetails, index}){
 
     const saveDataFromTable = async (cleaned) => {
         setIsLoading(true);
-        console.log("clean", cleaned);
         try {
             await createTransactions(data);
             setData(data);
@@ -112,7 +121,7 @@ export default function SessionTabs({boboDetails, index}){
 
                 <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                     {tabs.map((type, index) => (
-                        <li key={index} className="me-2 mt-2">
+                        <li key={index} className="me-1 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
                                 className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block p-4 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
