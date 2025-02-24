@@ -117,14 +117,14 @@ export default function SessionTabs({boboDetails, index}){
 
     return (
         <div className="mt-2">
-            <h1 className="mx-auto">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
+            <h1 className="mx-0">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
 
                 <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
                     {tabs.map((type, index) => (
                         <li key={index} className="me-1 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
-                                className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block p-4 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
+                                className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block pt-4 pb-4 pl-2 pr-2 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 >    {type.label}
                             </button>
                         </li>
@@ -138,6 +138,7 @@ export default function SessionTabs({boboDetails, index}){
                     saveDataFromTable={saveDataFromTable}
                     isOptional={tabs[activeTab].isOptional}
                     isLoanTab={activeTab === tabs.length-1}
+                    sessionNumber={index}
                 />
                 ) : (
                     <div className="mt-8 flex justify-center items-center">
