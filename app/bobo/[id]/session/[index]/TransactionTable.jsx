@@ -1,9 +1,19 @@
 'use client';
 
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+export default function 
+    TransactionTable({
+        isLoanTab, 
+        disabledOperations, 
+        data, 
+        isOptional, 
+        saveDataFromTable,
+        sessionNumber
+    }){
+    const router = useRouter();
 
-export default function TransactionTable({isLoanTab, disabledOperations, data, isOptional, saveDataFromTable}){
     const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0)
     const [error, setError] = useState({});
@@ -67,6 +77,11 @@ export default function TransactionTable({isLoanTab, disabledOperations, data, i
         if(!error)
             saveDataFromTable(rows);
     }
+
+    const handleApplyLoan = (accountId) => {
+        router.push(`/accounts/${accountId}?session=${sessionNumber}`);
+    }
+
     return (
         <div className="flex flex-col mt-3">
             <div className="-m-1.5 overflow-x-auto">
@@ -79,11 +94,11 @@ export default function TransactionTable({isLoanTab, disabledOperations, data, i
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Name</th>
                         {isLoanTab && <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Loan</th>}
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">Amount
-                            {!isOptional && 
+                            {/* {!isOptional && 
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4 text-red-500 ml-3 inline-block">
                                     <path fillRule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003ZM12 8.25a.75.75 0 0 1 .75.75v3.75a.75.75 0 0 1-1.5 0V9a.75.75 0 0 1 .75-.75Zm0 8.25a.75.75 0 1 0 0-1.5.75.75 0 0 0 0 1.5Z" clipRule="evenodd" />
                                 </svg>
-                            }
+                            } */}
                         </th>
                         <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">Action</th>
                         </tr>
@@ -96,8 +111,10 @@ export default function TransactionTable({isLoanTab, disabledOperations, data, i
                                 {isLoanTab && ( 
                                 <>
                                     <td key={"loan-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                        
-                                        <button type="button" className="inline-flex items-center mr-3 gap-x-2 font-semibold disabled:opacity-50 disabled:pointer-events-none" >
+                                        {/* <Link href={`/accounts/${d.account_id}`}  className="inline-flex  mr-3 gap-x-2"> */}
+                                         <button type="button" 
+                                            onClick={()=>handleApplyLoan(d.account_id)}
+                                            className="inline-flex items-center mr-3 gap-x-2 font-semibold disabled:opacity-50 disabled:pointer-events-none" >
                                                 {d.loan.is_complete || d.loan.interest == 0 ? 
                                                 (
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-4 text-blue-500 hover:text-blue-600">
@@ -115,7 +132,8 @@ export default function TransactionTable({isLoanTab, disabledOperations, data, i
 
                                                 )
                                                 }
-                                        </button>
+                                         </button>
+                                        {/* </Link> */}
                                         {d.loan.amount ?? 0}
                                     </td>
                                     <td key={"interest-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">{d.loan.interest ?? 0}</td>
