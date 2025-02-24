@@ -38,6 +38,23 @@ export async function createTransactions( transactions ){
     } catch(error){
         console.error(error)
     }
+}
 
-
+export async function getAllTransactionsByAccount( id ){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data, error } = await (await supabase)
+                .from('transactions')
+                .eq('account_id', id)
+        console.log("fetching transactions for account",id,data);
+        if(error){
+            console.error("Error in fetching transactions for account#", id, error)
+        }
+    } catch(error){
+        console.error("Error in fetching transactions for account#", id, error)
+    }
 }
