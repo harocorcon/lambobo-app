@@ -43,7 +43,7 @@ export async function createBobo(formData){
                     bobocycle_id: boboId,
                     label: t.label,
                     amount: t.amount == "depende"? 0: t.amount,
-                    isOptional: t.isOptional,
+                    isOptional: !t.isOptional,
                 }))
             )
 
