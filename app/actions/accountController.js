@@ -97,3 +97,26 @@ export async function deleteAllAccounts(boboId){
         } finally {
         }   
 }
+
+export async function getAccountById( id ){
+    console.log(" id ", id)
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try{
+        const { data: account, error } = await (await supabase).from('accounts')
+                                .select('*')
+                                .eq('id', id)
+                                .single();
+        if(error){
+            console.error("Dili pa fetch, iyaton ning getAccountById ", error);
+            return {};
+        }
+        return account;
+
+    }catch(error){
+        console.error("Error in fetching this account. ", id, error)
+    }
+}
