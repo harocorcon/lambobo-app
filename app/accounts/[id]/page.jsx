@@ -5,7 +5,7 @@ import AccountCard from "./AccountCard"
 import LoanForm from "./LoanForm"
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getLoanByAccount } from "@/app/actions/loanController";
+import { getLoanByAccount, updateLoan } from "@/app/actions/loanController";
 import dayjs from "dayjs";
 
 export default function AccountPage() {
@@ -65,11 +65,29 @@ export default function AccountPage() {
             is_active: true,
             is_complete: true,
         }
-        console.log(loan, "create new entry loan ", newLoan)
         if(loan){
-            // update loan entry
+            updateThisLoan({...newLoan, id: loan.id});
+            
         }else{
-            console.log("create new entry loan ", newLoan)
+            createThisLoan(loanData = {...newLoan, id: -1});
+        }
+    }
+
+    const updateThisLoan = async(loanData) =>{
+        try{
+            await updateLoan(loanData);
+        }catch(error){
+            console.error("Error in updating the loan", loan.id, error)
+        }
+    }
+
+    const createThisLoan = async(loanData) => {
+        console.log("creating new loan....")
+
+        try{
+            await createLoan(loanData);
+        }catch(error){
+            console.error("Error in creating a new loan", error)
         }
     }
 
