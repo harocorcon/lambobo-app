@@ -63,6 +63,27 @@ export async function createBobo(formData){
     
 }
 
+export async function getBoboName(boboId){
+    const supabase = createClient();
+    const { data: userData } = await (await supabase).auth.getUser();
+    console.log("boboName ", boboId)
+    if (!userData?.user) {
+      redirect('/login');
+    }
+
+    const { data: bobo, error } = await (await supabase)
+                            .from('bobo_cycles')
+                            .select('name')
+                            .eq('id', boboId)
+                            .eq('admin', userData.user.id)
+                            .single();
+
+    if (error) {
+        console.error('Error fetching from getBoboName', error);
+        }
+    return { data: bobo, error }
+} 
+
 export async function getBoboCycle(boboId){
     const supabase = createClient();
     const { data: userData } = await (await supabase).auth.getUser();
@@ -104,7 +125,6 @@ export async function getBoboSummary(boboId){
     
     const summary = {
         bobo, types, accountsCount
-        // bobo, typeLabels, accountsCount
     }
     return summary;
 }
