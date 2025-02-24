@@ -3,7 +3,7 @@
 import { createClient } from "../utils/supabase/server";
 
 export async function createLoan( loanDetails ){
-    const { bobo_id, account_id, amount, date, session_number } = loanDetails;
+    const { bobocycle_id, account_id, amount, applied_on, session_number } = loanDetails;
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     if (!data?.user) {
@@ -13,7 +13,7 @@ export async function createLoan( loanDetails ){
         const { data, error } = await (await supabase)
                 .from('loans')
                 .insert([{
-                        bobocycle_id: bobo_id,
+                        bobocycle_id: bobocycle_id,
                         account_id: account_id,
                         applied_on: date,
                         amount: amount,
@@ -64,7 +64,36 @@ export async function getLoansByBobo( bobo_id ){
             data: data,
             message: `Retrieved ${data.length} loans.`
         }
-        console.log("Retrieved ${data.length} loans.")
+    } catch(error){
+        console.error(error)
+    }
+}
+
+export async function getLoanByAccount( account_id ){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+
+    try {
+        const { data, error } = await (await supabase)
+                .from('loans')
+                .select('*') 
+                .eq('account_id', account_id) 
+                .eq('is_active', true)
+                .single(); 
+    
+        if (error){
+            console.error(error)
+        }
+    
+    console.log("getLoanByAccount ", data)
+        return {
+            success: true,
+            data: data,
+            message: `Retrieved ${data.length} loans.`
+        }
     } catch(error){
         console.error(error)
     }
