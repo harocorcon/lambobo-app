@@ -5,7 +5,7 @@ import AccountCard from "./AccountCard"
 import LoanForm from "./LoanForm"
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { getLoanByAccount, updateLoan } from "@/app/actions/loanController";
+import { createLoan, getLoanByAccount, updateLoan } from "@/app/actions/loanController";
 import dayjs from "dayjs";
 
 export default function AccountPage() {
@@ -58,19 +58,22 @@ export default function AccountPage() {
     const handleLoan = (amount) => {
         const newLoan = {
             amount,
-            bobocyle_id: account?.bobocycle_id,
+            bobocycle_id: account?.bobocycle_id,
             applied_on: dayjs().format('YYYY-MM-DD'),
             account_id: id,
             session_number: session,
             is_active: true,
             is_complete: true,
         }
-        if(loan){
+        if(loan?.id > -1){
             updateThisLoan({...newLoan, id: loan.id});
             
         }else{
-            createThisLoan(loanData = {...newLoan, id: -1});
+            let {data, error } = createThisLoan(newLoan);
         }
+        setTimeout(() => {
+            setShowLoanForm(false);
+        }, 1000);
     }
 
     const updateThisLoan = async(loanData) =>{
@@ -82,8 +85,6 @@ export default function AccountPage() {
     }
 
     const createThisLoan = async(loanData) => {
-        console.log("creating new loan....")
-
         try{
             await createLoan(loanData);
         }catch(error){

@@ -9,28 +9,30 @@ export async function createLoan( loanData ){
     if (!data?.user) {
         redirect('/login');
     }
+    console.log(account_id, bobocycle_id, amount, session_number, applied_on, "createLoan ", loanData)
     try {
         const { data, error } = await (await supabase)
                 .from('loans')
                 .insert([{
                         bobocycle_id: bobocycle_id,
-                        account_id: account_id,
+                        account_id: parseInt(account_id, 10),
                         applied_on: applied_on,
                         amount: amount,
                         session_number: session_number,
-                        isActive: true,
-                        isComplete: true,
-                    }]
-                )
-    
+                        is_active: true,
+                        is_complete: true,
+                    }])
+                .select("*") 
+                .single(); 
         if (error){
             console.error(error)
+            return {error}
         }
-    
-    
+
         return {
             success: true,
             data: data,
+            error: null,
             message: "Loan Saved."
         }
     
@@ -90,7 +92,7 @@ export async function getLoanByAccount( account_id ){
         return {
             success: true,
             data: data,
-            message: `Retrieved ${data.length} loans.`
+            message: `Retrieved ${data?.length} loans.`
         }
     } catch(error){
         console.error(error)
@@ -104,7 +106,6 @@ export async function updateLoan(loanData){
         redirect('/login');
     }
     const { id: loan_id, amount, session_number, applied_on } = loanData;
-    console.log(loan_id, "controller ", loanData)
     try {
         const { data, error } = await (await supabase)
                 .from('loans')
