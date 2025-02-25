@@ -47,12 +47,20 @@ export async function getAllTransactionsByAccount( id ){
         redirect('/login');
     }
     try {
-        const { data, error } = await (await supabase)
+        const { data: transaction, error } = await (await supabase)
                 .from('transactions')
+                .select('*') 
                 .eq('account_id', id)
-        console.log("fetching transactions for account",id,data);
+        
         if(error){
             console.error("Error in fetching transactions for account#", id, error)
+            return [];
+        }
+
+        return {
+            success: true,
+            data: transaction,
+            message: "Retrieved transactions for id", id
         }
     } catch(error){
         console.error("Error in fetching transactions for account#", id, error)
