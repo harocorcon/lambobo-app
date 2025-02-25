@@ -98,11 +98,11 @@ export default function SessionTabs({boboDetails, index}){
         setActiveTab(index);
     }
 
-    const saveDataFromTable = async (cleaned) => {
+    const saveDataFromTable = async(rows) => {
         setIsLoading(true);
         try {
-            await createTransactions(data);
-            setData(data);
+            await createTransactions(rows);
+            setData(rows);
             setIsDataSaved((prev) => {
                 const updated = [...prev];
                 updated[activeTab] = true;

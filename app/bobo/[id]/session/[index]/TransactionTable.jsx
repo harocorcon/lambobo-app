@@ -18,6 +18,7 @@ export default function
     const [total, setTotal] = useState(0)
     const [error, setError] = useState({});
     const [disableSubmit, setDisableSubmit] = useState(false);
+    const [saveData, setSaveData] = useState([]);
     
     useEffect(()=>{
         setRows(data)
@@ -26,12 +27,15 @@ export default function
     }, [data]);
 
     useEffect(()=>{
-        setDisableSubmit(false)
+        setDisableSubmit(false);
         if(!isOptional){
             rows.map((r)=>{
                 if(r.status < 0)
                     setDisableSubmit(true)
             })
+            setSaveData(rows)
+        }else{
+            setSaveData(rows.filter((row) => row.status >= 0));
         }
     }, [rows])
     
@@ -56,27 +60,6 @@ export default function
         });
     }
 
-    const isDataComplete = () =>{
-        console.log("cleaning data...", isOptional)
-        
-        if(isOptional){
-            console.log("data is optional")
-            setRows((prevRows) => {
-                return prevRows.filter((row) => row.status !== -1)
-            });
-        }
-
-        else{
-            rows.map((r) =>{
-                if( r.status < 0){
-                    setError({ success: false, message: 'Please recheck, you missed some rows.'});
-                    return;
-                }
-            })
-        }
-        if(!error)
-            saveDataFromTable(rows);
-    }
 
     const handleApplyLoan = (accountId) => {
         router.push(`/accounts/${accountId}?session=${sessionNumber}`);
@@ -181,7 +164,7 @@ export default function
                     <p className="mr-6 w-24">Total: {total}</p>
                     <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
                         disabled={disableSubmit}
-                        onClick={()=>isDataComplete()}>
+                        onClick={()=>saveDataFromTable(saveData)}>
                         Submit
                     </button>
                 </div>

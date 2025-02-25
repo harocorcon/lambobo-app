@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import AccountForm from "./AccountForm"
 import { createAccounts, getBoboAccounts } from "../actions/accountController"
 
-export default function AccountMenu({boboDetails}) {
+export default function AccountMenu({boboDetails, canAddMembers}) {
     const [showForm, setShowForm] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [newAccounts, setNewAccounts] = useState([{name:"", phone:""}]);
@@ -29,10 +29,6 @@ export default function AccountMenu({boboDetails}) {
         } catch (error) {
             console.error("Error fetching accounts:", error);
         }
-    }
-
-    const canAddMembers = (startdate) =>{
-        return !dayjs().isAfter(startdate)
     }
 
     const handleAddAccount = () => {
@@ -59,7 +55,7 @@ export default function AccountMenu({boboDetails}) {
                 <p className="w-auto font-bold">Accounts</p>
                 
                 {/*  canAddMembers if dateNow.isBefore(startdate) */}
-                {canAddMembers(bobo.startdate) && 
+                {canAddMembers && 
                     <div className="flex-1 ml-4">
                         <button className=" hover:bg-blue-300 bg-blue-400 p-1 rounded-lg text-white text-xs"
                             onClick={()=>handleAddAccount()}
