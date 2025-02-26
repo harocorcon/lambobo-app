@@ -162,7 +162,10 @@ export default function AccountPage() {
                     toggleShowForm={toggleShowForm}/>
                 {showLoanForm && <LoanForm loan={loan.amount ?? 0} handleLoan={handleLoan}/>}
 
-                <AccountTransactions transactions={transactions} transactionTypes={bobo.types} />
+                <AccountTransactions 
+                    transactions={transactions} 
+                    transactionTypes={bobo.types} 
+                />
                 </>
             )
         }

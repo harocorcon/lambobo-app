@@ -25,7 +25,6 @@ export default function AccountTransactions({transactions, transactionTypes}){
         return found ? found.label: '';
     }
 
-
     return (
         <div className="mt-2">
             <h1 className="mx-0">Transactions</h1>

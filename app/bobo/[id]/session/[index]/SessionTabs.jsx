@@ -62,15 +62,15 @@ export default function SessionTabs({boboDetails, index}){
         if(accounts.length > 0){
           let data = accounts.map((a) => {
             return {
-            bobocycle_id: bobo.id,
-            session_number: index,
-            date: format(sessionDate, 'yyyy-MM-dd'),
-            ttype_id: tabs[activeTab].id,
-            amount: tabs[activeTab].amount,
-            status: -1,
-            account_id: a.id,
-            name: a.name,
-            loan: getLoanByAccount(a.id),
+                bobocycle_id: bobo.id,
+                session_number: index,
+                date: format(sessionDate, 'yyyy-MM-dd'),
+                ttype_id: tabs[activeTab].id,
+                amount: tabs[activeTab].amount,
+                status: -1,
+                account_id: a.id,
+                name: a.name,
+                loan: getLoanByAccount(a.id),
             }});
           
           setData(data);
@@ -127,19 +127,23 @@ export default function SessionTabs({boboDetails, index}){
                                 className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block pt-4 pb-4 pl-2 pr-2 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 >    {type.label}
                             </button>
+
+                            
                         </li>
                     ))}
                 </ul>
 
             { !isLoading ? 
-                (<TransactionTable 
-                    disabledOperations={isDataSaved[activeTab]} 
-                    data={data} 
-                    saveDataFromTable={saveDataFromTable}
-                    isOptional={tabs[activeTab].isOptional}
-                    isLoanTab={activeTab === tabs.length-1}
-                    sessionNumber={index}
-                />
+                (
+                    <TransactionTable 
+                        disabledOperations={isDataSaved[activeTab]} 
+                        data={data} 
+                        saveDataFromTable={saveDataFromTable}
+                        isOptional={tabs[activeTab].isOptional}
+                        isLoanTab={activeTab === tabs.length-1}
+                        sessionNumber={index}
+                    />
+
                 ) : (
                     <div className="mt-8 flex justify-center items-center">
                         <svg
