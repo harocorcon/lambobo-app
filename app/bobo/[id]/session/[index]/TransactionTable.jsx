@@ -10,7 +10,11 @@ export default function
         data, 
         isOptional, 
         saveDataFromTable,
-        sessionNumber
+        sessionNumber,
+        transactionsByAccount,
+        activeTab,
+        updateTransactionsByAccount,
+        saveTransactions
     }){
     const router = useRouter();
 
@@ -28,38 +32,27 @@ export default function
 
     useEffect(()=>{
         setDisableSubmit(false);
-        if(!isOptional){
-            rows.map((r)=>{
-                if(r.status < 0)
+        if(transactionsByAccount && !transactionsByAccount[0]?.transactions[activeTab].isOptional){
+            transactionsByAccount.map((t)=>{
+                if(t.transactions[activeTab].status < 0)
                     setDisableSubmit(true)
             })
-            setSaveData(rows)
-        }else{
-            setSaveData(rows.filter((row) => row.status >= 0));
         }
-    }, [rows])
+    }, [transactionsByAccount])
     
-    const setStatus = (key, value) => {
-        let currentStatus = rows[key].status;
+    const handleStatusChange = (key, value) => {
+        let currentStatus = transactionsByAccount[key].transactions[activeTab].status;
+        let currentAmount = transactionsByAccount[key].transactions[activeTab].amount;
         let added = 0;
 
         if(currentStatus == 1 && value <= 0)
-            added = -1 * (rows[key].amount);
+            added = -1 * currentAmount;
         else if(currentStatus <= 0 && value == 1)
-            added = rows[key].amount;
+            added = currentAmount;
 
         setTotal(total + added);
-        setRows((prevRows) => {
-            const newRows = prevRows.map((row, index) => {
-              if (index === key) {
-                return { ...row, status: value }; 
-              }
-              return row;
-            });
-            return newRows;
-        });
+        updateTransactionsByAccount(key, value);
     }
-
 
     const handleApplyLoan = (accountId) => {
         router.push(`/accounts/${accountId}?session=${sessionNumber}`);
@@ -91,7 +84,7 @@ export default function
                     </thead>
 
                     <tbody className="divide-y divide-gray-200">
-                        { rows && rows.map((d, key) => 
+                        { transactionsByAccount && transactionsByAccount.map((d, key) => 
                             (<tr key={key} className="hover:bg-gray-100">
                             {!isLoanTab && 
                                 <td key={"cntr-"+key} className="px-2 py-4 whitespace-nowrap text-xs font-medium text-gray-500">
@@ -131,16 +124,16 @@ export default function
 
                                 {!isLoanTab && 
                                     <td key={"amount-" + key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                                    {d.amount}
-                                    {d.status != -1 
+                                    {d.transactions[activeTab].amount}
+                                    {d.transactions[activeTab].status != -1 
                                         && (
-                                        <button onClick={()=>setStatus(key, -1)} disabled={disabledOperations}>
-                                            {d.status > 0 ? (
+                                        <button onClick={()=>handleStatusChange(key, -1)} disabled={disabledOperations}>
+                                            {d.transactions[activeTab].status > 0 ? (
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 text-green-600 inline-flex ml-3">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
                                                 </svg>
                                             ) : (
-                                            d.status == 0 && 
+                                            d.transactions[activeTab].status == 0 && 
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" className="size-4 text-red-600 inline-flex ml-3">
                                                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
                                                 </svg>
@@ -149,10 +142,18 @@ export default function
                                     )}
                                 </td> }
                                 {<td key={"actions-"+key} className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
-                                    <button disabled={disabledOperations} onClick={()=>setStatus(key, 1)} type="button" className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
-                                        PAY
+                                    <button 
+                                        disabled={disabledOperations} 
+                                        onClick={()=>handleStatusChange(key, 1)}//{()=>setStatus(key, 1)} 
+                                        type="button" 
+                                        className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
+                                            PAY
                                     </button>
-                                    <button disabled={disabledOperations} onClick={()=>setStatus(key, 0)} type="button" className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">
+                                    <button 
+                                        disabled={disabledOperations} 
+                                        onClick={()=>handleStatusChange(key, 0)}//{()=>setStatus(key, 0)} 
+                                        type="button" 
+                                        className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">
                                         PASS
                                     </button>
                                 </td>}
@@ -171,7 +172,8 @@ export default function
                     <p className="mr-6 w-24">Total: {total}</p>
                     <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
                         disabled={disableSubmit}
-                        onClick={()=>saveDataFromTable(saveData)}>
+                        // onClick={()=>saveDataFromTable(saveData)}>
+                        onClick={saveTransactions}>
                         Submit
                     </button>
                 </div>

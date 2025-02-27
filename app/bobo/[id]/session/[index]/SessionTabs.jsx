@@ -10,12 +10,12 @@ import { addWeeks, format } from "date-fns";
 export default function SessionTabs({boboDetails, index}){
     const { bobo, types } = boboDetails;
     const [activeTab, setActiveTab] = useState(0);
-    const [data, setData] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const [accounts, setAccounts] = useState([]);
     const [isDataSaved, setIsDataSaved] = useState(types.map(() => false));
     const sessionDate = addWeeks(bobo.startdate, index - 1)
     const [loans, setLoans] = useState([]);
+    const [ transactionsByAccount, setTransactionsByAccount ] = useState(null);
 
     let loanTab =
         {
@@ -57,25 +57,66 @@ export default function SessionTabs({boboDetails, index}){
         return {...loan, interest}
     }
 
+    // useEffect(()=>{
+    //     setData([]);
+    //     if(accounts.length > 0){
+    //       let data = accounts.map((a) => {
+    //         return {
+    //             bobocycle_id: bobo.id,
+    //             session_number: index,
+    //             date: format(sessionDate, 'yyyy-MM-dd'),
+    //             ttype_id: tabs[activeTab].id,
+    //             amount: tabs[activeTab].amount,
+    //             status: -1,
+    //             account_id: a.id,
+    //             name: a.name,
+    //             loan: getLoanByAccount(a.id),
+    //         }});
+          
+    //       setData(data);
+    //     }
+    //   }, [accounts, activeTab]);
+
     useEffect(()=>{
-        setData([]);
         if(accounts.length > 0){
-          let data = accounts.map((a) => {
+          let transactionsPerAccount = accounts.map((a) => {
             return {
                 bobocycle_id: bobo.id,
                 session_number: index,
                 date: format(sessionDate, 'yyyy-MM-dd'),
-                ttype_id: tabs[activeTab].id,
-                amount: tabs[activeTab].amount,
-                status: -1,
+                transactions: tabs.map((tab) => { 
+                    return {
+                        ttype_id: tab.id, 
+                        type_label: tab.label,
+                        amount: tab.amount, 
+                        isOptional: tab.isOptional,
+                        status: -1,
+                    }}),
                 account_id: a.id,
                 name: a.name,
                 loan: getLoanByAccount(a.id),
             }});
-          
-          setData(data);
+          setTransactionsByAccount(transactionsPerAccount);
         }
-      }, [accounts, activeTab]);
+      }, [accounts]);
+
+    const updateTransactionsByAccount = (accountIndex, value) => {
+        console.log("...updateTransactionsByAccount", accountIndex, value);
+        setTransactionsByAccount((prev) => {
+            return prev.map((item, i) => {
+                if(i === accountIndex){
+                    const updatedTransactions = item.transactions.map((transaction, tabIndex) => {
+                        if (activeTab === tabIndex) {
+                          return { ...transaction, status: value };
+                        }
+                        return transaction;
+                    });
+                    return { ...item, transactions: updatedTransactions };
+                }
+                return item;
+            })
+        });
+    }
 
     useEffect(() => {
         const fetchData = async () => {
@@ -90,7 +131,7 @@ export default function SessionTabs({boboDetails, index}){
           }
         };
     
-        fetchData(); // Call the async function
+        fetchData();
       }, [bobo]);
     
     
@@ -115,6 +156,29 @@ export default function SessionTabs({boboDetails, index}){
         }
     };
 
+    const saveTransactions = async () => {
+        setIsLoading(true);
+        try{
+            const saving = transactionsByAccount.map((t)=>{
+                const transaction = {
+                    bobocycle_id: bobo.id,
+                    account_id: t.account_id,
+                    ttype_id: t.transactions[activeTab].ttype_id,
+                    date: sessionDate,
+                    amount: t.transactions[activeTab].amount,
+                    status: t.transactions[activeTab].status,
+                    session_number: index,
+                };
+                return transaction;
+            });
+            await createTransactions(saving);
+        } catch(error) {
+            console.error("Error saving accounts:", error);
+        } finally {
+            setIsLoading(false);   
+        }
+    }
+
     return (
         <div className="mt-2">
             <h1 className="mx-0">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
@@ -137,11 +201,15 @@ export default function SessionTabs({boboDetails, index}){
                 (
                     <TransactionTable 
                         disabledOperations={isDataSaved[activeTab]} 
-                        data={data} 
+                        // data={data} 
                         saveDataFromTable={saveDataFromTable}
                         isOptional={tabs[activeTab].isOptional}
                         isLoanTab={activeTab === tabs.length-1}
                         sessionNumber={index}
+                        transactionsByAccount = {transactionsByAccount}
+                        activeTab={activeTab}
+                        updateTransactionsByAccount={updateTransactionsByAccount}
+                        saveTransactions={saveTransactions}
                     />
 
                 ) : (
