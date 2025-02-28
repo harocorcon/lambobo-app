@@ -182,7 +182,6 @@ export default function SessionTabs({boboDetails, index}){
                     bobocycle_id: bobo.id
                 }
                 let session = await createSession(sessionRecord);
-                console.log("session recording...", session)
             }
         } catch(error) {
             console.error("Error saving accounts:", error);
@@ -213,7 +212,7 @@ export default function SessionTabs({boboDetails, index}){
                 (
                     <TransactionTable 
                         disabledOperations={isDataSaved[activeTab]} 
-                        // data={data} 
+                        isViewing={false}
                         saveDataFromTable={saveDataFromTable}
                         isOptional={tabs[activeTab].isOptional}
                         isLoanTab={activeTab === tabs.length-1}
