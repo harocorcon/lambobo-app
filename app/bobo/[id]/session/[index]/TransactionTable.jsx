@@ -16,19 +16,8 @@ export default function
         saveTransactions
     }){
     const router = useRouter();
-    // const [total, setTotal]
-
-    // const [rows, setRows] = useState([]);
-    const [total, setTotal] = useState(0)
-    // const [error, setError] = useState({});
+    const [total, setTotal] = useState([]);
     const [disableSubmit, setDisableSubmit] = useState(false);
-    // const [saveData, setSaveData] = useState([]);
-    
-    // useEffect(()=>{
-    //     setRows(data)
-    //     setTotal(0);
-    //     setError({});
-    // }, [data]);
 
     useEffect(()=>{
         setDisableSubmit(false);
@@ -37,6 +26,11 @@ export default function
                 if(t.transactions[activeTab].status < 0)
                     setDisableSubmit(true)
             })
+        }
+        if( transactionsByAccount && total.length < 1){
+            let init = [];
+            transactionsByAccount.map((t)=>init.push(0))
+            setTotal(init)
         }
     }, [transactionsByAccount])
     
@@ -49,8 +43,9 @@ export default function
             added = -1 * currentAmount;
         else if(currentStatus <= 0 && value == 1)
             added = currentAmount;
-
-        setTotal(total + added);
+        const updated = [...total];
+        updated[activeTab] = total[activeTab] + added;
+        setTotal(updated);
         updateTransactionsByAccount(key, value);
     }
 
@@ -185,7 +180,7 @@ export default function
                 </div>
 
                 <div className="flex items-center text-center justify-center">
-                    <p className="mr-6 w-24">Total: {total}</p>
+                    <p className="mr-6 w-24">Total: {total[activeTab]}</p>
                     <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
                         disabled={disableSubmit}
                         onClick={saveTransactions}>
