@@ -114,8 +114,8 @@ export async function createTransaction( transactions ){
 }
 
 export async function getTransactionByAccountPerSession( details ){
-    console.log("details: ", details)
-    const { account_id, session_number, bobocycle_id } = details;
+    // console.log("details: ", details)
+    const { account_id, session_number, bobocycle_id, ttype_id } = details;
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     if (!data?.user) {
@@ -128,9 +128,9 @@ export async function getTransactionByAccountPerSession( details ){
                 .eq('account_id', account_id)
                 .eq('session_number', session_number)
                 .eq('bobocycle_id', bobocycle_id)
-                .single();
+                .eq('ttype_id', ttype_id)
 
-        console.log("controller ", transaction)
+        console.log("transaction found!! ", transaction)
         
         if(error){
             console.error("Error in fetching transactions for account#", account_id, error)

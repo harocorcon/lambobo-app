@@ -13,10 +13,11 @@ export default function SessionTabs({boboDetails, index}){
     const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [accounts, setAccounts] = useState([]);
-    const [isDataSaved, setIsDataSaved] = useState(types.map(() => false));
+    const [isDataSaved, setIsDataSaved] = useState([]);
     const sessionDate = addWeeks(bobo.startdate, index - 1)
     const [loans, setLoans] = useState([]);
     const [ transactionsByAccount, setTransactionsByAccount ] = useState(null);
+
 
     let loanTab =
         {
@@ -48,24 +49,43 @@ export default function SessionTabs({boboDetails, index}){
         }
     }
 
-    const getThisTransactionStatus = async (a_id, type_id) => {
-        try{
-            const { data } = await getSession(bobo.id, index, type_id);
-            console.log("!!data ", !!data)
-            if(!!data){
-                console.log("ayawg sud false man kaha ", !!data)
-                const thisTransaction = await getTransactionByAccountPerSession({
-                        account_id: id, 
-                        bobocycle_id: bobo.id, 
-                        session_number: index, 
-                        ttype_id: type_id
-                    })
+    const isTransactionTypeConducted = async () => {
+        const newIsDataSaved = []; // Array to store the boolean values
+      setIsLoading(true);
+        for (const tab of tabs) {
+          try {
+            const sessionExists = await getSession(bobo.id, index, tab.id);
+            newIsDataSaved.push(sessionExists && sessionExists.length > 0); // Push the boolean directly
+          } catch (error) {
+            console.error("Session Issues:", error);
+            newIsDataSaved.push(false); // Push false on error
+          }
+        }
+      setIsLoading(false);
+        setIsDataSaved(newIsDataSaved); // Update state with the boolean array
+      };
 
-                return thisTransaction?.status;
-            }
+    const getThisTransactionStatus = async (a_id, type_id) => {
+        setIsLoading(true);
+        try{
+            const thisTransaction = await getTransactionByAccountPerSession({
+                account_id: a_id, 
+                bobocycle_id: bobo.id, 
+                session_number: index, 
+                ttype_id: type_id
+            })
+            console.log("thisTransaction ", thisTransaction)
+            setIsLoading(false);
+
+            if (thisTransaction.success) {
+                return thisTransaction.data.status;
+                } else {
+                console.warn("No transactions found, despite session existing.");
+                return -1;
+                }
+        }catch(error){
+            console.error("No fetched transaction, ingon naa")
             return -1;
-        } catch(error){
-            console.error("Wala makatarong ug fetch kung naa bay session ana")
         }
     }
 
@@ -79,19 +99,20 @@ export default function SessionTabs({boboDetails, index}){
     }
 
     useEffect(()=>{
+        isTransactionTypeConducted();
         if(accounts.length > 0){
           let transactionsPerAccount = accounts.map((a) => {
             return {
                 bobocycle_id: bobo.id,
                 session_number: index,
                 date: format(sessionDate, 'yyyy-MM-dd'),
-                transactions: tabs.map((tab) => { 
+                transactions: tabs.map((tab, i) => { 
                     return {
                         ttype_id: tab.id, 
                         type_label: tab.label,
                         amount: tab.amount, 
                         isOptional: tab.isOptional,
-                        status: getThisTransactionStatus(a.id, tab.id)
+                        status: isDataSaved[i]? getThisTransactionStatus(a.id, tab.id): -1,
                     }}),
                 account_id: a.id,
                 name: a.name,
@@ -102,7 +123,6 @@ export default function SessionTabs({boboDetails, index}){
       }, [accounts]);
 
     const updateTransactionsByAccount = (accountIndex, value) => {
-        console.log("...updateTransactionsByAccount", accountIndex, value);
         setTransactionsByAccount((prev) => {
             return prev.map((item, i) => {
                 if(i === accountIndex){
@@ -212,7 +232,7 @@ export default function SessionTabs({boboDetails, index}){
                 (
                     <TransactionTable 
                         disabledOperations={isDataSaved[activeTab]} 
-                        isViewing={false}
+                        isViewing={isDataSaved[activeTab]}
                         // saveDataFromTable={saveDataFromTable}
                         isOptional={tabs[activeTab].isOptional}
                         isLoanTab={activeTab === tabs.length-1}
