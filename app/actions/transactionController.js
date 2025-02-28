@@ -9,11 +9,13 @@ export async function createTransactions( transactions ){
     if (!data?.user) {
         redirect('/login');
     }
+    const filteredTransactions = transactions.filter((t) => t.status !== -1)
     try {
         const { data, error } = await (await supabase)
                 .from('transactions')
                 .insert(
-                    transactions.map((t) => ({
+                    filteredTransactions
+                    .map((t) => ({
                         bobocycle_id: t.bobocycle_id,
                         account_id: t.account_id,
                         ttype_id: t.ttype_id,
@@ -37,6 +39,11 @@ export async function createTransactions( transactions ){
     
     } catch(error){
         console.error(error)
+        return {
+            success: false,
+            data: [],
+            message: "Error in saving transactions."
+        }
     }
 }
 
@@ -73,11 +80,13 @@ export async function createTransaction( transactions ){
     if (!data?.user) {
         redirect('/login');
     }
+    const filteredTransactions = transactions.filter((t) => t.status !== -1)
+    console.log("filtered? ", filteredTransactions.length)
     try {
         const { data, error } = await (await supabase)
                 .from('transactions')
                 .insert(
-                    transactions.map((t) => ({
+                    filteredTransactions.map((t) => ({
                         bobocycle_id: t.bobocycle_id,
                         account_id: t.account_id,
                         ttype_id: t.ttype_id,
