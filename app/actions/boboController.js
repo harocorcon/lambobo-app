@@ -35,11 +35,22 @@ export async function createBobo(formData){
 
         const boboId = boboData.id;
         const {transactionTypes} = formData;
+        const defaultTransactions = [{
+            amount: -1,
+            label: "Loan",
+            isOptional: true,
+        },
+        {
+            amount: -1,
+            label: "Interest",
+            isOptional: true,
+        }]
+        const ttypes = [...transactionTypes, ...defaultTransactions]
 
         const { data: tranTypesData, error: tranTypesError} = await (await supabase)
             .from('transaction_types')
             .insert(
-                transactionTypes.map((t) => ({
+                ttypes.map((t) => ({
                     bobocycle_id: boboId,
                     label: t.label,
                     amount: t.amount == "depende"? 0: t.amount,
@@ -49,13 +60,14 @@ export async function createBobo(formData){
 
         if (tranTypesError) throw tranTypesError;
 
-        redirect("/")
 
         return {
             success: true,
             data: data,
             message: "Bobo Saved."
         }
+        
+        redirect("/")
 
     } catch(error){
         throw error
@@ -134,7 +146,10 @@ export async function getAllBoboSummary(){
     let boboList = {};
 
     try{
-        const { data, error } = await (await supabase).from('bobo_cycles').select('*');
+        const { data, error } = await (await supabase)
+            .from('bobo_cycles')
+            .select('*')
+            .order('created_at', { ascending: false });
         if(error){
             console.error(error);
             throw error;
