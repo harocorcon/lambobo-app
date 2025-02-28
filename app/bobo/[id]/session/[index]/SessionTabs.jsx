@@ -5,6 +5,7 @@ import TransactionTable from "./TransactionTable";
 import { getLoansByBobo } from "@/app/actions/loanController";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions } from "@/app/actions/transactionController";
+import { createSession } from "@/app/actions/sessionController"
 import { addWeeks, format } from "date-fns";
 
 export default function SessionTabs({boboDetails, index}){
@@ -171,7 +172,18 @@ export default function SessionTabs({boboDetails, index}){
                 };
                 return transaction;
             });
-            await createTransactions(saving);
+            const transactionResult = await createTransactions(saving);
+
+            if(transactionResult.success) {
+                const sessionRecord = {
+                    session_number: index,
+                    date: sessionDate,
+                    ttype_id: types[activeTab].id,
+                    bobocycle_id: bobo.id
+                }
+                let session = await createSession(sessionRecord);
+                console.log("session recording...", session)
+            }
         } catch(error) {
             console.error("Error saving accounts:", error);
         } finally {
