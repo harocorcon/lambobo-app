@@ -8,7 +8,7 @@ export default function
         isViewing, // can't udate payment
         isLoanTab, 
         disabledOperations, 
-        data,
+        // data,
         sessionNumber,
         transactionsByAccount,
         activeTab,
@@ -16,18 +16,19 @@ export default function
         saveTransactions
     }){
     const router = useRouter();
+    // const [total, setTotal]
 
-    const [rows, setRows] = useState([]);
+    // const [rows, setRows] = useState([]);
     const [total, setTotal] = useState(0)
-    const [error, setError] = useState({});
+    // const [error, setError] = useState({});
     const [disableSubmit, setDisableSubmit] = useState(false);
-    const [saveData, setSaveData] = useState([]);
+    // const [saveData, setSaveData] = useState([]);
     
-    useEffect(()=>{
-        setRows(data)
-        setTotal(0);
-        setError({});
-    }, [data]);
+    // useEffect(()=>{
+    //     setRows(data)
+    //     setTotal(0);
+    //     setError({});
+    // }, [data]);
 
     useEffect(()=>{
         setDisableSubmit(false);

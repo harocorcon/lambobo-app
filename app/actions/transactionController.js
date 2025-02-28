@@ -146,3 +146,34 @@ export async function getTransactionByAccountPerSession( details ){
         console.error("Error in fetching transactions for account#", error)
     }
 }
+
+export async function getTransactionsBySession(details){
+    const {bobocycle_id, session_number} = details
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data: transactions, error } = await (await supabase)
+                .from('transactions')
+                .select('*') 
+                .eq('session_number', session_number)
+                .eq('bobocycle_id', bobocycle_id)
+
+        console.log("transactions found!! ", transactions)
+        
+        if(error){
+            console.error("Error in fetching transactions for account#", account_id, error)
+            return;
+        }
+
+        return {
+            success: true,
+            data: transactions,
+            message: "Retrieved transaction for id", account_id
+        }
+    } catch(error){
+        console.error("Error in fetching transactions for account#", error)
+    }
+}
