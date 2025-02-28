@@ -36,3 +36,33 @@ export async function createSession(session){
         }
     }
 }
+
+export async function getSession(bobocycle_id, session_number, ttype_id){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data, error } = await (await supabase)
+                .from('sessions')
+                .select("*") 
+                .eq('bobocycle_id', bobocycle_id)
+                .eq('session_number', session_number)
+                .eq('ttype_id', ttype_id)
+
+        if (error){
+            console.error(error)
+        }
+        return data;
+            
+    } catch(error){
+        console.error(error)
+        return {
+            success: false,
+            data: [],
+            message: "Error in looking for this session."
+        }
+    }
+}

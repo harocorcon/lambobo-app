@@ -112,3 +112,37 @@ export async function createTransaction( transactions ){
         console.error(error)
     }
 }
+
+export async function getTransactionByAccountPerSession( details ){
+    console.log("details: ", details)
+    const { account_id, session_number, bobocycle_id } = details;
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data: transaction, error } = await (await supabase)
+                .from('transactions')
+                .select('*') 
+                .eq('account_id', account_id)
+                .eq('session_number', session_number)
+                .eq('bobocycle_id', bobocycle_id)
+                .single();
+
+        console.log("controller ", transaction)
+        
+        if(error){
+            console.error("Error in fetching transactions for account#", account_id, error)
+            return;
+        }
+
+        return {
+            success: true,
+            data: transaction,
+            message: "Retrieved transaction for id", account_id
+        }
+    } catch(error){
+        console.error("Error in fetching transactions for account#", error)
+    }
+}

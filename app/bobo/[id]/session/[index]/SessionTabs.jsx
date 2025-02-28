@@ -4,8 +4,8 @@ import { useState, useEffect } from "react";
 import TransactionTable from "./TransactionTable";
 import { getLoansByBobo } from "@/app/actions/loanController";
 import { getBoboAccounts } from "@/app/actions/accountController";
-import { createTransactions } from "@/app/actions/transactionController";
-import { createSession } from "@/app/actions/sessionController"
+import { createTransactions, getTransactionByAccountPerSession } from "@/app/actions/transactionController";
+import { createSession, getSession } from "@/app/actions/sessionController"
 import { addWeeks, format } from "date-fns";
 
 export default function SessionTabs({boboDetails, index}){
@@ -48,35 +48,35 @@ export default function SessionTabs({boboDetails, index}){
         }
     }
 
+    const getThisTransactionStatus = async (a_id, type_id) => {
+        try{
+            const { data } = await getSession(bobo.id, index, type_id);
+            console.log("!!data ", !!data)
+            if(!!data){
+                console.log("ayawg sud false man kaha ", !!data)
+                const thisTransaction = await getTransactionByAccountPerSession({
+                        account_id: id, 
+                        bobocycle_id: bobo.id, 
+                        session_number: index, 
+                        ttype_id: type_id
+                    })
+
+                return thisTransaction?.status;
+            }
+            return -1;
+        } catch(error){
+            console.error("Wala makatarong ug fetch kung naa bay session ana")
+        }
+    }
+
     const getLoanByAccount = (account) =>{
         let loan = loans.find((loan)=>(account === loan.account_id));
         let interest = 0;
         if(loan && loan.amount > 0){
             interest = Math.ceil(((loan.amount * bobo.interest) / 100) / 4);
-            console.log("found a loaaaan! ", loan.account_id)
         }
         return {...loan, interest}
     }
-
-    // useEffect(()=>{
-    //     setData([]);
-    //     if(accounts.length > 0){
-    //       let data = accounts.map((a) => {
-    //         return {
-    //             bobocycle_id: bobo.id,
-    //             session_number: index,
-    //             date: format(sessionDate, 'yyyy-MM-dd'),
-    //             ttype_id: tabs[activeTab].id,
-    //             amount: tabs[activeTab].amount,
-    //             status: -1,
-    //             account_id: a.id,
-    //             name: a.name,
-    //             loan: getLoanByAccount(a.id),
-    //         }});
-          
-    //       setData(data);
-    //     }
-    //   }, [accounts, activeTab]);
 
     useEffect(()=>{
         if(accounts.length > 0){
@@ -91,7 +91,7 @@ export default function SessionTabs({boboDetails, index}){
                         type_label: tab.label,
                         amount: tab.amount, 
                         isOptional: tab.isOptional,
-                        status: -1,
+                        status: getThisTransactionStatus(a.id, tab.id)
                     }}),
                 account_id: a.id,
                 name: a.name,
@@ -151,7 +151,7 @@ export default function SessionTabs({boboDetails, index}){
                 return updated;
             })
         } catch (error) {
-            console.error("Error saving accounts:", error);
+            console.error("Error saving transactions:", error);
         } finally {
             setIsLoading(false);   
         }
@@ -213,7 +213,7 @@ export default function SessionTabs({boboDetails, index}){
                     <TransactionTable 
                         disabledOperations={isDataSaved[activeTab]} 
                         isViewing={false}
-                        saveDataFromTable={saveDataFromTable}
+                        // saveDataFromTable={saveDataFromTable}
                         isOptional={tabs[activeTab].isOptional}
                         isLoanTab={activeTab === tabs.length-1}
                         sessionNumber={index}
