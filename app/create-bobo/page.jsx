@@ -3,10 +3,11 @@
 import { useState } from "react";
 import CreateBoboForm from "./CreateBoboForm"
 import TransactionForm from "./TransactionForm";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { createBobo } from "../actions/boboController";
 
 export default function CreateBobo() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = useState(false);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
@@ -30,7 +31,7 @@ export default function CreateBobo() {
             const newBobo = await createBobo(formData);
             console.log("returned newbobo", newBobo)
             setIsLoading(false);
-            redirect("/")
+            router.push("/")
         }catch(error){
             console.error(error)
         }
@@ -66,7 +67,7 @@ export default function CreateBobo() {
             <h1 className="font-extrabold text-xl text-center mb-7">Create Bobo Cycle</h1>
             {step == 1 && <CreateBoboForm nextStep={nextStep} formData={formData} updateFormData={updateFormData}/>}
             {step == 2 && <TransactionForm handleCreate={submitToController} prevStep={prevStep} updateFormData={updateFormData}/>}
-            { step == 2 && formData.transactionTypes.length > 1 &&
+            { step == 2 && formData.transactionTypes.length > 0 &&
                 <div className="text-center">
                     <button className="relative inline-flex items-center justify-center p-0.5 mb-2 me-2 overflow-hidden text-sm font-medium text-gray-900 rounded-lg group bg-gradient-to-br from-green-400 to-blue-600 group-hover:from-green-400 group-hover:to-blue-600 hover:text-white dark:text-white focus:ring-4 focus:outline-none focus:ring-green-200 dark:focus:ring-green-800 disabled:opacity-50"
                     onClick={submitToController}>

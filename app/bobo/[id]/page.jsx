@@ -19,12 +19,12 @@ export default async function BoboPage({ params }) {
     }
 
     return (
-        <>
-            <BoboCard boboDetails={boboDetails} />
+        <div className="flex flex-col mx-auto items-center">
+            <BoboCard className="mx-auto" boboDetails={boboDetails} />
             {/* {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>} */}
             <AccountMenu boboDetails={boboDetails} canAddMembers={true}/>
-            <BoboCalendar boboDetails={boboDetails} />
-        </>
+            <BoboCalendar className="mx-auto" boboDetails={boboDetails} />
+        </div>
     )
 }
 
