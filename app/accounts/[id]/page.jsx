@@ -106,6 +106,7 @@ export default function AccountPage() {
         }else{
             let {data, error } = createThisLoan(newLoan);
         }
+        
         setTimeout(() => {
             setShowLoanForm(false);
         }, 1000);

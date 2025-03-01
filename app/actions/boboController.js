@@ -38,12 +38,12 @@ export async function createBobo(formData){
         const defaultTransactions = [{
             amount: -1,
             label: "Interest",
-            isOptional: true,
+            isOptional: false,
         },
         {
             amount: -1,
             label: "Loan",
-            isOptional: true,
+            isOptional: false,
         }]
         const ttypes = [...transactionTypes, ...defaultTransactions]
 

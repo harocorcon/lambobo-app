@@ -19,8 +19,7 @@ export default function SessionTabs({boboDetails, index}){
     const [loans, setLoans] = useState([]);
     const [ transactionsByAccount, setTransactionsByAccount ] = useState(null);
     const [transactionHistory, setTransactionHistory] = useState({});
-
-    const tabs = [...types];
+    const [isColumnReady, setIsColumnReady] = useState(Array.from({ length: types.length }, () => false));
     
     const fetchAccounts = async() => {
         try {
@@ -45,7 +44,7 @@ export default function SessionTabs({boboDetails, index}){
     const isTransactionTypeConducted = async () => {
         const newIsDataSaved = []; // Array to store the boolean values
         setIsLoading(true);
-        for (const tab of tabs) {
+        for (const tab of types) {
           try {
             const sessionExists = await getSession(bobo.id, index, tab.id);
             newIsDataSaved.push(sessionExists && sessionExists.length > 0); // Push the boolean directly
@@ -93,6 +92,42 @@ export default function SessionTabs({boboDetails, index}){
         });
     }
 
+    const updateIsColumnReady = (index, value) => {
+        setIsColumnReady(prev => {
+            const updated = [...prev];
+            updated[index] = value;
+            return updated;
+        })
+    }
+
+    useEffect(() => {
+        if(transactionsByAccount && !types[activeTab].isOptional){
+            let tabIsReady = true;
+            transactionsByAccount.map((tba) => {
+                if(tba.transactions[activeTab].status < 0)
+                    tabIsReady = false;
+            })
+            if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
+                updateIsColumnReady(activeTab, tabIsReady)
+            }
+        }
+        if(types[activeTab].label === 'Interest'){
+            let tabIsReady = true;
+            loans.map((loan) => {
+                if(getAccountLoanStatus(loan.account_id) < 0)
+                    tabIsReady = false;
+            })
+            if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
+                updateIsColumnReady(activeTab, tabIsReady)
+            }
+        }
+    }, [transactionsByAccount])
+
+    const getAccountLoanStatus = (id) => {
+        const accountWithLoan = transactionsByAccount.find(o => o.account_id === id);
+        return accountWithLoan.transactions[activeTab].status ?? -2;
+    }
+
     const getLoanByAccount = (account) =>{
         let loan = loans.find((loan)=>(account === loan.account_id));
         let interest = 0;
@@ -125,7 +160,7 @@ export default function SessionTabs({boboDetails, index}){
                 bobocycle_id: bobo.id,
                 session_number: index,
                 date: format(sessionDate, 'yyyy-MM-dd'),
-                transactions: tabs.map((tab, i) => { 
+                transactions: types.map((tab, i) => { 
                     return {
                         ttype_id: tab.id, 
                         type_label: tab.label,
@@ -156,6 +191,20 @@ export default function SessionTabs({boboDetails, index}){
     
         fetchData();
       }, [bobo]);
+
+    useEffect(() => {
+        if(loans && loans.length > 0) {
+            const updated = isColumnReady;
+            types.map((t, i) => {
+                if(t.isOptional){
+                    updated[i] = true;
+                }
+                if(t.label === "Interest")
+                    updated[i] = false;
+            })
+            setIsColumnReady(updated);
+        }
+    }, [loans])
     
     const handleTabChange = (index) => {
         setActiveTab(index);
@@ -213,10 +262,34 @@ export default function SessionTabs({boboDetails, index}){
 
     return (
         <div className="mt-2">
-            <h1 className="mx-0">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
+            
+            <h1 className="pb-3">Session #{index} {format(sessionDate, 'MMMM d, yyyy')}</h1>
+
+            <div className="py -5">
+                <ul className="flex items-center w-full p-3 space-x-2 text-sm font-medium text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-xs dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:p-4 sm:space-x-4 rtl:space-x-reverse">
+                    {
+                        types.map( (t, i) => (
+                        <li key={"progress-"+i} className="flex items-center text-blue-600 dark:text-blue-500">
+                        <span className={`${isColumnReady[i]? 'bg-blue-500 text-white': 'bg-gray-100'} flex items-center justify-center w-5 h-5 me-2 text-xs border border-blue-600 rounded-full shrink-0 dark:border-blue-500`}>
+                            {i+1}
+                        </span>
+                        <svg className="w-3 h-3 ms-2 sm:ms-4 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 12 10">
+                            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m7 9 4-4-4-4M1 9l4-4-4-4"/>
+                        </svg>
+                        </li>
+                        ) )
+                    }
+                    <li key="submit" className="flex items-center text-white dark:text-blue-500">
+                        <button disabled={!isColumnReady.every(Boolean)} className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-lg disabled:opacity-50">
+                            Submit
+                        </button>
+
+                    </li>
+                </ul>
+            </div>
 
                 <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
-                    {tabs.map((type, index) => (
+                    {types.map((type, index) => (
                         <li key={index} className="me-1 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
@@ -235,14 +308,15 @@ export default function SessionTabs({boboDetails, index}){
                         disabledOperations={isDataSaved[activeTab]} 
                         isViewing={isDataSaved[activeTab]}
                         // saveDataFromTable={saveDataFromTable}
-                        isOptional={tabs[activeTab].isOptional}
-                        // isLoanTab={activeTab === tabs.length-1}
-                        isLoanTab={tabs[activeTab].label==="Loan"}
+                        isOptional={types[activeTab].isOptional}
+                        // isLoanTab={activeTab === types.length-1}
+                        isLoanTab={types[activeTab].label==="Loan"}
                         sessionNumber={index}
                         transactionsByAccount = {transactionsByAccount}
                         activeTab={activeTab}
                         updateTransactionsByAccount={updateTransactionsByAccount}
                         saveTransactions={saveTransactions}
+                        isColumnReady={isColumnReady}
                     />
 
                 ) : (

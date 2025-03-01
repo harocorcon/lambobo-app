@@ -13,7 +13,8 @@ export default function
         transactionsByAccount,
         activeTab,
         updateTransactionsByAccount,
-        saveTransactions
+        types,
+        
     }){
     const router = useRouter();
     const [total, setTotal] = useState([]);
@@ -127,21 +128,24 @@ export default function
                                         ? 'Apply': 'Resolve'}
                                     </button>
                                 ) : (
-                                <><button 
-                                    disabled={disabledOperations} 
-                                    onClick={()=>handleStatusChange(key, 1)}
-                                    type="button" 
-                                    className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
-                                        PAY
-                                </button>
-                                <button 
-                                    disabled={disabledOperations} 
-                                    onClick={()=>handleStatusChange(key, 0)} 
-                                    type="button" 
-                                    className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">
-                                    PASS
-                                </button>
-                                </>)}
+                                d.transactions[activeTab].amount > 0 &&
+                                    <>
+                                    <button 
+                                        disabled={disabledOperations} 
+                                        onClick={()=>handleStatusChange(key, 1)}
+                                        type="button" 
+                                        className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
+                                            PAY
+                                    </button>
+                                    <button 
+                                        disabled={disabledOperations} 
+                                        onClick={()=>handleStatusChange(key, 0)} 
+                                        type="button" 
+                                        className="inline-flex items-center ml-3 gap-x-2 text-xs font-semibold rounded-lg border bg-red-500 px-2 py-1 hover:bg-red-600 text-white disabled:opacity-50 disabled:pointer-events-none">
+                                        PASS
+                                    </button>
+                                    </>
+                                    )}
                                 </td>
                             }
                             </tr>
@@ -153,11 +157,11 @@ export default function
 
                 <div className="flex items-center text-center justify-center">
                     <p className="mr-6 w-24">Total: {total[activeTab]}</p>
-                    <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
+                    {/* <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
                         disabled={disableSubmit}
                         onClick={saveTransactions}>
                         Submit
-                    </button>
+                    </button> */}
                 </div>
                 </div>
             </div>
