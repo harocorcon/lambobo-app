@@ -229,35 +229,42 @@ export default function SessionTabs({boboDetails, index}){
 
     const saveTransactions = async () => {
         setIsLoading(true);
-        try{
-            const saving = transactionsByAccount.map((t)=>{
-                const transaction = {
-                    bobocycle_id: bobo.id,
-                    account_id: t.account_id,
-                    ttype_id: t.transactions[activeTab].ttype_id,
-                    date: sessionDate,
-                    amount: t.transactions[activeTab].amount,
-                    status: t.transactions[activeTab].status,
-                    session_number: index,
-                };
-                return transaction;
-            });
-            const transactionResult = await createTransactions(saving);
+        // try{
+    //     const transactionResult = await createTransactions(saving);
 
-            if(transactionResult.success) {
-                const sessionRecord = {
-                    session_number: index,
-                    date: sessionDate,
-                    ttype_id: types[activeTab].id,
-                    bobocycle_id: bobo.id
+            let allTransactions = [];
+            for (const tba of transactionsByAccount) {
+                for ( const transaction of tba.transactions) {
+                    let data = {
+                        bobocycle_id: bobo.id,
+                        account_id: tba.account_id,
+                        ttype_id: transaction.ttype_id,
+                        date: sessionDate,
+                        amount: transaction.amount,
+                        status: transaction.status,
+                        session_number: index,
+                    }
+                    if(transaction.status >= 0)
+                        allTransactions.push(data);
                 }
-                let session = await createSession(sessionRecord);
             }
-        } catch(error) {
-            console.error("Error saving accounts:", error);
-        } finally {
-            setIsLoading(false);   
-        }
+
+            console.log("all transactions ...", allTransactions);
+
+        //     if(transactionResult.success) {
+        //         const sessionRecord = {
+        //             session_number: index,
+        //             date: sessionDate,
+        //             // ttype_id: types[activeTab].id,
+        //             bobocycle_id: bobo.id
+        //         }
+        //         let session = await createSession(sessionRecord);
+        //     }
+        // } catch(error) {
+        //     console.error("Error saving accounts:", error);
+        // } finally {
+        //     setIsLoading(false);   
+        // }
     }
 
     return (
@@ -280,7 +287,10 @@ export default function SessionTabs({boboDetails, index}){
                         ) )
                     }
                     <li key="submit" className="flex items-center text-white dark:text-blue-500">
-                        <button disabled={!isColumnReady.every(Boolean)} className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-lg disabled:opacity-50">
+                        <button 
+                            disabled={!isColumnReady.every(Boolean)} 
+                            onClick={saveTransactions}
+                            className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-lg disabled:opacity-50">
                             Submit
                         </button>
 

@@ -1,16 +1,27 @@
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
+import { createLoan, updateLoan } from "../actions/loanController";
 
-export default function LoanForm({loan, handleLoan}){
+export default function LoanForm({loanDetails, setShowLoanModal}){
     const [inputValue, setInputValue] = useState(0);
-    const [total, setTotal] = useState(loan ?? 0);
+    const [total, setTotal] = useState(0);
     const [perWeek, setPerWeek] = useState(0);
     const [isApplying, setIsApplying] = useState(false);
+    const [loaned, setLoaned] = useState(0);
 
 
     useEffect(() => {
-        setTotal(inputValue + loan)
-        setPerWeek(Math.ceil((((inputValue + loan) * 10) / 100) / 4))
+        setTotal(inputValue + loaned)
+        setPerWeek(Math.ceil((((inputValue + loaned) * 10) / 100) / 4))
     }, [inputValue])
+
+    useEffect(() => {
+        if(loanDetails){
+            const loan = loanDetails.loan.amount ?? 0;
+            setTotal(loan);
+            setLoaned(loan);
+        }
+    }, [loanDetails])
 
 
     const handleInputChange = (event) => {
@@ -31,13 +42,54 @@ export default function LoanForm({loan, handleLoan}){
           }, 3000);
     }
 
+    const handleLoan = (amount) => {
+        const { bobocycle_id, account_id, session_number, loan} = loanDetails;
+        const newLoan = {
+            amount,
+            bobocycle_id,
+            applied_on: dayjs().format('YYYY-MM-DD'),
+            account_id,
+            session_number,
+            is_active: true,
+            is_complete: true,
+        }
+        console.log(loanDetails, "newloaaan ", newLoan);
+        if(loan?.id > -1){
+            updateThisLoan({...newLoan, id: loan.id});
+            
+        }else{
+            let {data, error } = createThisLoan(newLoan);
+        }
+        
+        setTimeout(() => {
+            setShowLoanModal(false)
+        }, 1000);
+    }
+    
+    const updateThisLoan = async(loanData) =>{
+        try{
+            await updateLoan(loanData);
+        }catch(error){
+            console.error("Error in updating the loan", loanDetails.loan.id, error)
+        }
+    }
+
+    const createThisLoan = async(loanData) => {
+        console.log("justin bieber .... createthisLoan")
+        try{
+            await createLoan(loanData);
+        }catch(error){
+            console.error("Error in creating a new loan", error)
+        }
+    }
+
 
     return(
         <>
         <form className="justify-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6" > 
             <div className="mb-4">
             <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="amount">
-                New Loan: <span className="font-normal">{loan} +</span>
+                New Loan: <span className="font-normal">{loaned} +</span>
             </label>
             <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
                 id="amount" type="number" placeholder="Amount" onChange={handleInputChange}/>

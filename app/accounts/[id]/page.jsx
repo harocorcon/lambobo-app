@@ -2,7 +2,7 @@
 
 import { getAccountById } from "@/app/actions/accountController";
 import AccountCard from "./AccountCard"
-import LoanForm from "./LoanForm"
+import LoanForm from "../../components/LoanForm"
 import AccountTransactions from "./AccountTransactions"
 import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";

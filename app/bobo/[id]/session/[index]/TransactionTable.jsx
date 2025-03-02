@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import LoanFormModal from "@/app/components/LoanFormModal"
 
 export default function 
     TransactionTable({
@@ -19,6 +20,8 @@ export default function
     const router = useRouter();
     const [total, setTotal] = useState([]);
     const [disableSubmit, setDisableSubmit] = useState(false);
+    const [showLoanModal, setShowLoanModal] = useState(false);
+    const [loanDetails, setLoanDetails] = useState(null);
 
     useEffect(()=>{
         setDisableSubmit(false);
@@ -50,8 +53,10 @@ export default function
         updateTransactionsByAccount(key, value);
     }
 
-    const handleApplyLoan = (accountId) => {
-        router.push(`/accounts/${accountId}?session=${sessionNumber}`);
+    const handleApplyLoan = (transactionAccount) => {
+        setShowLoanModal(true);
+        setLoanDetails(transactionAccount)
+
     }
 
     return (
@@ -121,8 +126,7 @@ export default function
                                 <td key={"actions-"+key} className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                 {isLoanTab? (
                                     <button type="button" 
-                                    onClick={()=>handleApplyLoan(d.account_id)}
-                                    // className="inline-flex items-center mr-3 gap-x-2 font-semibold disabled:opacity-50 disabled:pointer-events-none" >
+                                    onClick={()=>handleApplyLoan(d)}
                                     className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
                                         {d.loan.is_complete || d.loan.interest == 0 
                                         ? 'Apply': 'Resolve'}
@@ -163,6 +167,8 @@ export default function
                         Submit
                     </button> */}
                 </div>
+
+                <LoanFormModal loanDetails={loanDetails} showModal={showLoanModal} setShowLoanModal={()=>setShowLoanModal(false)}/>
                 </div>
             </div>
             </div>
