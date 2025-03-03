@@ -37,7 +37,7 @@ export async function createSession(session){
     }
 }
 
-export async function getSession(bobocycle_id, session_number, ttype_id){
+export async function checkIfSessionExists(bobocycle_id, session_number){
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     
@@ -50,7 +50,7 @@ export async function getSession(bobocycle_id, session_number, ttype_id){
                 .select("*") 
                 .eq('bobocycle_id', bobocycle_id)
                 .eq('session_number', session_number)
-                .eq('ttype_id', ttype_id)
+        
         console.log("session found! ", data)
         if (error){
             console.error(error)
