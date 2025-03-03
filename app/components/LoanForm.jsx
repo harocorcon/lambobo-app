@@ -44,7 +44,7 @@ export default function LoanForm({
         handleLoan(total);
         setTimeout(() => {
             setIsApplying(false);
-          }, 3000);
+          }, 1000);
     }
 
     const handleLoan = (amount) => {
@@ -66,7 +66,7 @@ export default function LoanForm({
         
         setTimeout(() => {
             setShowLoanModal(false)
-        }, 3000);
+        }, 1000);
     }
     
     const updateThisLoan = async(loanData) =>{

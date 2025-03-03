@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import TransactionTable from "./TransactionTable";
-import { getLoansByBobo } from "@/app/actions/loanController";
+import { createLoan, getLoansByBobo, updateLoan } from "@/app/actions/loanController";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions, getTransactionsBySession } from "@/app/actions/transactionController";
 import { createSession, getSession } from "@/app/actions/sessionController"
@@ -210,6 +210,20 @@ export default function SessionTabs({boboDetails, index}){
             setIsColumnReady(updated);
         }
     }, [loans])
+
+    useEffect(() => {
+        if(isColumnReady && types){
+            let temp = isColumnReady.map((icr, i) => {
+                if(types[i].isOptional)
+                    return true;
+                return false;
+            })
+            setIsColumnReady(temp);
+        }
+
+        // check if this session is already in the
+
+    }, [])
     
     const handleTabChange = (index) => {
         setActiveTab(index);
@@ -217,10 +231,7 @@ export default function SessionTabs({boboDetails, index}){
 
     const saveTransactions = async () => {
         setIsLoading(true);
-        // try{
-    //     const transactionResult = await createTransactions(saving);
-
-            let allTransactions = [];
+        let allTransactions = [];
             for (const tba of transactionsByAccount) {
                 for ( const transaction of tba.transactions) {
                     const appliedNewLoan = -1;
@@ -238,10 +249,14 @@ export default function SessionTabs({boboDetails, index}){
                     if(transaction.status >= 0 || appliedNewLoan > 0)
                         allTransactions.push(data);
                 }
-            }
-
+        }
+        try{
             console.log("all transactions ...", allTransactions);
+            const transactionResult = await createTransactions(allTransactions);
             setIsLoading(false);
+        }catch(error){
+            console.error(error)
+        }
     }
 
     const updateTransactionsNewLoan = (accountIndex, value) => {
@@ -277,7 +292,7 @@ export default function SessionTabs({boboDetails, index}){
 
     
     const updateLoanToSave = (modalDetails) => {
-        console.log(loanToSave,length, "updateloantosave ", modalDetails)
+        console.log(loanToSave, "updateloantosave ", modalDetails)
         const newLoan = {
             account_id: modalDetails.account_id,
             amount: modalDetails.amount,
@@ -297,64 +312,62 @@ export default function SessionTabs({boboDetails, index}){
 
             updateTransactionsNewLoan(modalDetails.account_id, modalDetails.newLoan);
             updateTBAhasApplied(modalDetails.account_id, true)
-            //save this as transaction
         }
     }
 
     const saveLoans = async () => {
-        const newLoan = {
-            amount,
-            newLoan: inputValue,
-            bobocycle_id,
-            applied_on: dayjs().format('YYYY-MM-DD'),
-            account_id,
-            session_number,
-            is_active: true,
-            is_complete: true,
-        }
-        setLoanUpdate(newLoan);
-        
-        // if(accont_id is in the list)
-        const updateThisLoan = async(loanData) =>{
-            try{
-                await updateLoan(loanData);
-            }catch(error){
-                console.error("Error in updating the loan", loanDetails.loan.id, error)
+        setIsLoading(true);
+        loanToSave.map((loan) => {
+            if(loan.loan_id < 0){
+                console.log("creating a new loan ", loan);
+                const createThisLoan = async(loan) => {
+                    try{
+                        await createLoan(loan);
+                        setIsLoading(false);
+                    }catch(error){
+                        console.error("Error in creating a new loan", error)
+                    }
+                }
+                createThisLoan(loan);
+                return;
+            } else {
+                const updateThisLoan = async(loan) =>{
+                    try{
+                        const updatedLoan = await updateLoan(loan);
+                        console.log("loan is finally updated, ", updatedLoan)
+                        setIsLoading(false);
+                    }catch(error){
+                        console.error("Error in updating the loan", error)
+                    }
+                }
+                updateThisLoan(loan);
             }
-        }
 
-        const createThisLoan = async(loanData) => {
-            try{
-                await createLoan(loanData);
-            }catch(error){
-                console.error("Error in creating a new loan", error)
-            }
-        }
+        })        
     }
 
     const saveSession = async () => {
-        //     if(transactionResult.success) {
-        //         const sessionRecord = {
-        //             session_number: index,
-        //             date: sessionDate,
-        //             // ttype_id: types[activeTab].id,
-        //             bobocycle_id: bobo.id
-        //         }
-        //         let session = await createSession(sessionRecord);
-        //     }
-        // } catch(error) {
-        //     console.error("Error saving accounts:", error);
-        // } finally {
-        //     setIsLoading(false);   
-        // }
+        try{
+            const sessionRecord = {
+                session_number: index,
+                date: sessionDate,
+                bobocycle_id: bobo.id
+            }
+            let session = await createSession(sessionRecord);
+            setIsLoading(false);
+        } catch(error) {
+            console.error("Error saving accounts:", error);
+        } finally {
+            setIsLoading(false);   
+        }
     }
 
     const handleAllSessionTransactions = () => {
         // collect all transactions, update loans
         console.log("collate all trasactions....")
         saveTransactions();
-        // saveLoans();
-        // saveSession();
+        saveLoans();
+        saveSession();
         console.log("end of process....")
         //refetch
         //sessiontab be isViewing=true

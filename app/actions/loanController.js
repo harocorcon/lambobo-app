@@ -99,13 +99,15 @@ export async function getLoanByAccount( account_id ){
     }
 }
 
-export async function updateLoan(loanData){
+export async function updateLoan( loan ){
+     
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     if (!data?.user) {
         redirect('/login');
     }
-    const { id: loan_id, amount, session_number, applied_on } = loanData;
+   
+    const { loan_id, amount, session_number, applied_on } = loan;
     try {
         const { data, error } = await (await supabase)
                 .from('loans')
