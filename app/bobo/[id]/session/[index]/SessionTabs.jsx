@@ -13,13 +13,13 @@ export default function SessionTabs({boboDetails, index}){
     const [activeTab, setActiveTab] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const [accounts, setAccounts] = useState([]);
-    // const [isDataSaved, setIsDataSaved] = useState([]);
     const [isDataSaved, setIsDataSaved] = useState(Array.from({ length: types.length }, () => false));
     const sessionDate = addWeeks(bobo.startdate, index - 1)
     const [loans, setLoans] = useState([]);
     const [ transactionsByAccount, setTransactionsByAccount ] = useState(null);
     const [transactionHistory, setTransactionHistory] = useState({});
     const [isColumnReady, setIsColumnReady] = useState(Array.from({ length: types.length }, () => false));
+    const [loanToSave, setLoanToSave] = useState([]);
     
     const fetchAccounts = async() => {
         try {
@@ -134,7 +134,8 @@ export default function SessionTabs({boboDetails, index}){
         if(loan && loan.amount > 0){
             interest = Math.ceil(((loan.amount * bobo.interest) / 100) / 4);
         }
-        return {...loan, interest}
+
+        return {...loan, interest, hasApplied: false}
     }
 
     const getStatusFromHistory = (a_id, t_id) => {
@@ -161,13 +162,17 @@ export default function SessionTabs({boboDetails, index}){
                 session_number: index,
                 date: format(sessionDate, 'yyyy-MM-dd'),
                 transactions: types.map((tab, i) => { 
-                    return {
+                    const transaction = {
                         ttype_id: tab.id, 
                         type_label: tab.label,
-                        amount: tab.amount > 0? tab.amount: tab.label === "Loan"? loanAmount: interest, 
+                        amount: tab.amount > 0? tab.amount: tab.label === "Loan"? 0: interest, 
                         isOptional: tab.isOptional,
                         status: -1,
-                    }}),
+                    }
+                    if(tab.label === "Loan")
+                        transaction.newLoan = 0;
+                    return transaction;
+                }),
                 account_id: a.id,
                 name: a.name,
                 loan: loa,
@@ -210,23 +215,6 @@ export default function SessionTabs({boboDetails, index}){
         setActiveTab(index);
     }
 
-    const saveDataFromTable = async(rows) => {
-        setIsLoading(true);
-        try {
-            await createTransactions(rows);
-            setData(rows);
-            setIsDataSaved((prev) => {
-                const updated = [...prev];
-                updated[activeTab] = true;
-                return updated;
-            })
-        } catch (error) {
-            console.error("Error saving transactions:", error);
-        } finally {
-            setIsLoading(false);   
-        }
-    };
-
     const saveTransactions = async () => {
         setIsLoading(true);
         // try{
@@ -235,22 +223,116 @@ export default function SessionTabs({boboDetails, index}){
             let allTransactions = [];
             for (const tba of transactionsByAccount) {
                 for ( const transaction of tba.transactions) {
+                    const appliedNewLoan = -1;
+                    if( transaction.label === "Loan" && transaction.newLoan != 0)
+                        appliedNewLoan = transaction.newLoan;
                     let data = {
                         bobocycle_id: bobo.id,
                         account_id: tba.account_id,
                         ttype_id: transaction.ttype_id,
                         date: sessionDate,
-                        amount: transaction.amount,
-                        status: transaction.status,
+                        amount: appliedNewLoan < 0 ? transaction.amount: appliedNewLoan,
+                        status: appliedNewLoan < 0 ? transaction.status: 1,
                         session_number: index,
                     }
-                    if(transaction.status >= 0)
+                    if(transaction.status >= 0 || appliedNewLoan > 0)
                         allTransactions.push(data);
                 }
             }
 
             console.log("all transactions ...", allTransactions);
+            setIsLoading(false);
+    }
 
+    const updateTransactionsNewLoan = (accountIndex, value) => {
+        setTransactionsByAccount((prev) => {
+            return prev.map((item, i) => {
+                if(item.account_id === accountIndex){
+                    console.log("found account ", accountIndex)
+                    const updatedTransactions = item.transactions.map((transaction, tabIndex) => {
+                        if (transaction.type_label === "Loan") {
+                          return { ...transaction, amount: value, status: 1 };
+                        }
+                        return transaction;
+                    });
+                    return { ...item, transactions: updatedTransactions };
+                }
+                return item;
+            })
+        });
+    }
+
+    const updateTBAhasApplied = (accountIndex, value) => {
+        setTransactionsByAccount((prev) => {
+            return prev.map((item, i) => {
+                if(item.account_id === accountIndex){
+                    let updated = item.loan;
+                    updated.hasApplied = value;
+                    return { ...item, loan: updated };
+                }
+                return item;
+            })
+        });
+    }
+
+    
+    const updateLoanToSave = (modalDetails) => {
+        console.log(loanToSave,length, "updateloantosave ", modalDetails)
+        const newLoan = {
+            account_id: modalDetails.account_id,
+            amount: modalDetails.amount,
+            applied_on: sessionDate,
+            bobocycle_id: bobo.id,
+            is_active: true,
+            is_complete: true,
+            loan_id: modalDetails.loanId,
+            session_number: index,
+        };
+
+        if(modalDetails.account_id){
+            setLoanToSave((prev) => {
+                const updated = [...prev, newLoan];
+                return updated;
+            })
+
+            updateTransactionsNewLoan(modalDetails.account_id, modalDetails.newLoan);
+            updateTBAhasApplied(modalDetails.account_id, true)
+            //save this as transaction
+        }
+    }
+
+    const saveLoans = async () => {
+        const newLoan = {
+            amount,
+            newLoan: inputValue,
+            bobocycle_id,
+            applied_on: dayjs().format('YYYY-MM-DD'),
+            account_id,
+            session_number,
+            is_active: true,
+            is_complete: true,
+        }
+        setLoanUpdate(newLoan);
+        
+        // if(accont_id is in the list)
+        const updateThisLoan = async(loanData) =>{
+            try{
+                await updateLoan(loanData);
+            }catch(error){
+                console.error("Error in updating the loan", loanDetails.loan.id, error)
+            }
+        }
+
+        const createThisLoan = async(loanData) => {
+            try{
+                await createLoan(loanData);
+            }catch(error){
+                console.error("Error in creating a new loan", error)
+            }
+        }
+    }
+
+    const saveSession = async () => {
         //     if(transactionResult.success) {
         //         const sessionRecord = {
         //             session_number: index,
@@ -265,6 +347,17 @@ export default function SessionTabs({boboDetails, index}){
         // } finally {
         //     setIsLoading(false);   
         // }
+    }
+
+    const handleAllSessionTransactions = () => {
+        // collect all transactions, update loans
+        console.log("collate all trasactions....")
+        saveTransactions();
+        // saveLoans();
+        // saveSession();
+        console.log("end of process....")
+        //refetch
+        //sessiontab be isViewing=true
     }
 
     return (
@@ -289,7 +382,7 @@ export default function SessionTabs({boboDetails, index}){
                     <li key="submit" className="flex items-center text-white dark:text-blue-500">
                         <button 
                             disabled={!isColumnReady.every(Boolean)} 
-                            onClick={saveTransactions}
+                            onClick={handleAllSessionTransactions}
                             className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-lg disabled:opacity-50">
                             Submit
                         </button>
@@ -327,6 +420,7 @@ export default function SessionTabs({boboDetails, index}){
                         updateTransactionsByAccount={updateTransactionsByAccount}
                         saveTransactions={saveTransactions}
                         isColumnReady={isColumnReady}
+                        updateLoanToSave={updateLoanToSave}
                     />
 
                 ) : (

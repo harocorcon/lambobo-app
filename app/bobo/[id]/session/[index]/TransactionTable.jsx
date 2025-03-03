@@ -15,7 +15,7 @@ export default function
         activeTab,
         updateTransactionsByAccount,
         types,
-        
+        updateLoanToSave,
     }){
     const router = useRouter();
     const [total, setTotal] = useState([]);
@@ -36,11 +36,20 @@ export default function
             transactionsByAccount.map((t)=>init.push(0))
             setTotal(init)
         }
+        if(transactionsByAccount && isLoanTab){
+            let totalLoan = 0;
+            transactionsByAccount.map(tba => {
+                totalLoan += tba.transactions[activeTab].amount    
+            })
+            const updateTotal = total;
+            updateTotal[activeTab] = totalLoan;
+            setTotal(updateTotal);
+        }
     }, [transactionsByAccount])
     
     const handleStatusChange = (key, value) => {
         let currentStatus = transactionsByAccount[key].transactions[activeTab].status;
-        let currentAmount = isLoanTab? transactionsByAccount[key].loan.interest: transactionsByAccount[key].transactions[activeTab].amount;
+        let currentAmount = transactionsByAccount[key].transactions[activeTab].amount;
         let added = 0;
 
         if(currentStatus == 1 && value <= 0)
@@ -56,7 +65,6 @@ export default function
     const handleApplyLoan = (transactionAccount) => {
         setShowLoanModal(true);
         setLoanDetails(transactionAccount)
-
     }
 
     return (
@@ -75,6 +83,9 @@ export default function
                         <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
                                 Amount
                         </th>
+                        {isLoanTab && <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">
+                            New
+                        </th>}
                         {!isViewing && <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">
                             Action
                         </th>}
@@ -93,17 +104,13 @@ export default function
                                 {d.name}
                             </td>
 
-                            {/* { // loan column
-                                isLoanTab && ( 
-                                <>
-                                    <td key={"loan-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                        
-                                        {d.loan.amount ?? ''}
-                                    </td>
-                                </> )} */}
-                            {/* icon next to amount for paid, pass */}
+                            
+                            {isLoanTab && <td key={"newloan-" + key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
+                                {/* {d.transactions[activeTab].newLoan} */}
+                                {d.loan.amount ?? ''}
+                            </td>}
+
                             <td key={"amount-" + key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                                {/* {isLoanTab? d.loan.interest == 0? '' : d.loan.interest:  */}
                                 {d.transactions[activeTab].amount}
                                 {d.transactions[activeTab].status != -1 
                                     && (
@@ -122,14 +129,16 @@ export default function
                                 )}
                             </td> 
 
+
                             {!isViewing && 
                                 <td key={"actions-"+key} className="px-6 py-4 whitespace-nowrap text-end text-sm font-medium">
                                 {isLoanTab? (
                                     <button type="button" 
                                     onClick={()=>handleApplyLoan(d)}
-                                    className="inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none">
+                                    disabled={d.loan.hasApplied}
+                                    className={`inline-flex items-center gap-x-2 text-xs font-semibold rounded-lg border bg-green-500 px-2 py-1 hover:bg-green-600 text-white disabled:opacity-50 disabled:pointer-events-none`}>
                                         {d.loan.is_complete || d.loan.interest == 0 
-                                        ? 'Apply': 'Resolve'}
+                                        ? d.loan.hasApplied? 'Pending...': 'Apply': 'Resolve'}
                                     </button>
                                 ) : (
                                 d.transactions[activeTab].amount > 0 &&
@@ -168,7 +177,11 @@ export default function
                     </button> */}
                 </div>
 
-                <LoanFormModal loanDetails={loanDetails} showModal={showLoanModal} setShowLoanModal={()=>setShowLoanModal(false)}/>
+                <LoanFormModal 
+                    loanDetails={loanDetails} 
+                    showModal={showLoanModal} 
+                    updateLoanToSave={updateLoanToSave}
+                    setShowLoanModal={()=>setShowLoanModal(false)}/>
                 </div>
             </div>
             </div>

@@ -2,7 +2,12 @@ import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import { createLoan, updateLoan } from "../actions/loanController";
 
-export default function LoanForm({loanDetails, setShowLoanModal}){
+export default function LoanForm({
+        loanDetails, 
+        setShowLoanModal,
+        setLoanInput,
+        setLoanUpdate,
+    }){
     const [inputValue, setInputValue] = useState(0);
     const [total, setTotal] = useState(0);
     const [perWeek, setPerWeek] = useState(0);
@@ -30,12 +35,12 @@ export default function LoanForm({loanDetails, setShowLoanModal}){
 
         const numericValue = parseInt(value, 10);
         if (!isNaN(numericValue)) {
-        console.log('Numeric value:', numericValue);
         }
     }
 
     const handleApplyLoan = () => {
         setIsApplying(true);
+        // update transactions.newLoan to inputValue
         handleLoan(total);
         setTimeout(() => {
             setIsApplying(false);
@@ -43,27 +48,25 @@ export default function LoanForm({loanDetails, setShowLoanModal}){
     }
 
     const handleLoan = (amount) => {
-        const { bobocycle_id, account_id, session_number, loan} = loanDetails;
+        
         const newLoan = {
             amount,
-            bobocycle_id,
-            applied_on: dayjs().format('YYYY-MM-DD'),
-            account_id,
-            session_number,
-            is_active: true,
-            is_complete: true,
+            newLoan: inputValue,
+            account_id: loanDetails.account_id,
+            loanId: loanDetails.loan.id ?? -1,
         }
-        console.log(loanDetails, "newloaaan ", newLoan);
-        if(loan?.id > -1){
-            updateThisLoan({...newLoan, id: loan.id});
+        // console.log(loanDetails, "newloaaan ", newLoan);
+        setLoanUpdate(newLoan);
+        // if(loan?.id > -1){
+        //     updateThisLoan({...newLoan, id: loan.id});
             
-        }else{
-            let {data, error } = createThisLoan(newLoan);
-        }
+        // }else{
+        //     let {data, error } = createThisLoan(newLoan);
+        // }
         
         setTimeout(() => {
             setShowLoanModal(false)
-        }, 1000);
+        }, 3000);
     }
     
     const updateThisLoan = async(loanData) =>{
@@ -75,7 +78,6 @@ export default function LoanForm({loanDetails, setShowLoanModal}){
     }
 
     const createThisLoan = async(loanData) => {
-        console.log("justin bieber .... createthisLoan")
         try{
             await createLoan(loanData);
         }catch(error){

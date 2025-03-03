@@ -1,11 +1,20 @@
-import LoanForm from "./LoanForm";
 
+
+import { useEffect, useState } from "react";
+import LoanForm from "./LoanForm";
 
 export default function LoanFormModal({
     loanDetails,
     showModal,
-    setShowLoanModal
+    setShowLoanModal,
+    updateLoanToSave
 }) {
+    const [loanUpdate, setLoanUpdate] = useState({});
+
+    useEffect(() => {
+        updateLoanToSave(loanUpdate);
+    }, [loanUpdate])
+
     return (
         <>
             {
@@ -23,7 +32,11 @@ export default function LoanFormModal({
                             </button>
                         </div>
                         <div className="bg-white rounded-lg p-8 max-w-md w-full">
-                            <LoanForm loanDetails={loanDetails} setShowLoanModal={setShowLoanModal}/>
+                            <LoanForm 
+                                loanDetails={loanDetails} 
+                                setShowLoanModal={setShowLoanModal}
+                                setLoanUpdate={setLoanUpdate}
+                            />
                         </div>
                     </div>
                 )
