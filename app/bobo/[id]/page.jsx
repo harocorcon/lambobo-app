@@ -14,12 +14,17 @@ export default async function BoboPage({ params }) {
         redirect("/login"); //Feb15 it redirects even without this
     }
 
+    const canAddMembers = (startdate) =>{
+        return !dayjs().isAfter(startdate)
+    }
+
     return (
-        <>
-            <BoboCard boboDetails={boboDetails} />
-            {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} />}
-            <BoboCalendar boboDetails={boboDetails} />
-        </>
+        <div className="flex flex-col mx-auto items-center">
+            <BoboCard className="mx-auto" boboDetails={boboDetails} />
+            {/* {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>} */}
+            <AccountMenu boboDetails={boboDetails} canAddMembers={true}/>
+            <BoboCalendar className="mx-auto" boboDetails={boboDetails} />
+        </div>
     )
 }
 

@@ -111,9 +111,12 @@ export default function CreateBoboForm({nextStep, updateFormData, formData}) {
                 <div className="pt-2 relative p-4">
                     <Button className="absolute right-0 -top-6 bg-blue-500 hover:bg-blue-700 text-white font-bold mt-6 py-2 px-4 rounded"
                         onClick={handleSubmit}
-                        >{'>>'}</Button>
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="size-5">
+                                <path d="M3.288 4.818A1.5 1.5 0 0 0 1 6.095v7.81a1.5 1.5 0 0 0 2.288 1.276l6.323-3.905c.155-.096.285-.213.389-.344v2.973a1.5 1.5 0 0 0 2.288 1.276l6.323-3.905a1.5 1.5 0 0 0 0-2.552l-6.323-3.906A1.5 1.5 0 0 0 10 6.095v2.972a1.506 1.506 0 0 0-.389-.343L3.288 4.818Z" />
+                            </svg>
+                        </Button>
                 </div>
-                {/* </form> */}
         </div>
     )
 }

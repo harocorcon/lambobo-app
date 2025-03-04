@@ -35,33 +35,66 @@ export async function createBobo(formData){
 
         const boboId = boboData.id;
         const {transactionTypes} = formData;
+        const defaultTransactions = [{
+            amount: -1,
+            label: "Interest",
+            isOptional: false,
+        },
+        {
+            amount: -1,
+            label: "Loan",
+            isOptional: false,
+        }]
+        const ttypes = [...transactionTypes, ...defaultTransactions]
 
         const { data: tranTypesData, error: tranTypesError} = await (await supabase)
             .from('transaction_types')
             .insert(
-                transactionTypes.map((t) => ({
+                ttypes.map((t) => ({
                     bobocycle_id: boboId,
                     label: t.label,
                     amount: t.amount == "depende"? 0: t.amount,
-                    isOptional: t.isOptional,
+                    isOptional: !t.isOptional,
                 }))
             )
 
         if (tranTypesError) throw tranTypesError;
 
-        redirect("/")
 
         return {
             success: true,
             data: data,
             message: "Bobo Saved."
         }
+        
+        redirect("/")
 
     } catch(error){
         throw error
     }
     
 }
+
+export async function getBoboName(boboId){
+    const supabase = createClient();
+    const { data: userData } = await (await supabase).auth.getUser();
+    console.log("boboName ", boboId)
+    if (!userData?.user) {
+      redirect('/login');
+    }
+
+    const { data: bobo, error } = await (await supabase)
+                            .from('bobo_cycles')
+                            .select('name')
+                            .eq('id', boboId)
+                            .eq('admin', userData.user.id)
+                            .single();
+
+    if (error) {
+        console.error('Error fetching from getBoboName', error);
+        }
+    return { data: bobo, error }
+} 
 
 export async function getBoboCycle(boboId){
     const supabase = createClient();
@@ -104,7 +137,6 @@ export async function getBoboSummary(boboId){
     
     const summary = {
         bobo, types, accountsCount
-        // bobo, typeLabels, accountsCount
     }
     return summary;
 }
@@ -114,7 +146,10 @@ export async function getAllBoboSummary(){
     let boboList = {};
 
     try{
-        const { data, error } = await (await supabase).from('bobo_cycles').select('*');
+        const { data, error } = await (await supabase)
+            .from('bobo_cycles')
+            .select('*')
+            .order('created_at', { ascending: false });
         if(error){
             console.error(error);
             throw error;
