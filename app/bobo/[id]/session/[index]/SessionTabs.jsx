@@ -5,7 +5,7 @@ import TransactionTable from "./TransactionTable";
 import { createLoan, getLoansByBobo, updateLoan } from "@/app/actions/loanController";
 import { getBoboAccounts } from "@/app/actions/accountController";
 import { createTransactions, getTransactionsBySession } from "@/app/actions/transactionController";
-import { createSession, getSession } from "@/app/actions/sessionController"
+import { createSession, checkIfSessionExists } from "@/app/actions/sessionController"
 import { addWeeks, format } from "date-fns";
 
 export default function SessionTabs({boboDetails, index}){
@@ -19,6 +19,8 @@ export default function SessionTabs({boboDetails, index}){
     const [transactionHistory, setTransactionHistory] = useState({});
     const [isColumnReady, setIsColumnReady] = useState(Array.from({ length: types.length }, () => false));
     const [loanToSave, setLoanToSave] = useState([]);
+    const [isViewing, setIsViewing] = useState(false);
+    const [sessionHistory, setSessionHistory] = useState([]);
 
     
     
@@ -71,14 +73,11 @@ export default function SessionTabs({boboDetails, index}){
     }
     
     const handleAllSessionTransactions = () => {
-        // collect all transactions, update loans
         console.log("collate all trasactions....")
         saveTransactions();
         saveLoans();
         saveSession();
         console.log("end of process....")
-        //refetch
-        //sessiontab be isViewing=true
     }
     
     const handleTabChange = (index) => {
@@ -145,35 +144,40 @@ export default function SessionTabs({boboDetails, index}){
     }
 
     useEffect(() => {
-        
-        if(transactionsByAccount && !types[activeTab].isOptional){
-            let tabIsReady = true;
-            transactionsByAccount.map((tba) => {
-                if(tba.transactions[activeTab].status < 0)
-                    tabIsReady = false;
-            })
-            if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
-                updateIsColumnReady(activeTab, tabIsReady)
+        if(!isViewing){
+            if(transactionsByAccount && !types[activeTab].isOptional){
+                let tabIsReady = true;
+                transactionsByAccount.map((tba) => {
+                    if(tba.transactions[activeTab].status < 0)
+                        tabIsReady = false;
+                })
+                if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
+                    updateIsColumnReady(activeTab, tabIsReady)
+                }
+            }
+            if(types[activeTab].label === 'Interest'){
+                let tabIsReady = true;
+                loans.map((loan) => {
+                    if(getAccountLoanStatus(loan.account_id) < 0)
+                        tabIsReady = false;
+                })
+                if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
+                    updateIsColumnReady(activeTab, tabIsReady)
+                }
             }
         }
-        if(types[activeTab].label === 'Interest'){
-            let tabIsReady = true;
-            loans.map((loan) => {
-                if(getAccountLoanStatus(loan.account_id) < 0)
-                    tabIsReady = false;
-            })
-            if(isColumnReady && tabIsReady != isColumnReady[activeTab]){
-                updateIsColumnReady(activeTab, tabIsReady)
-            }
+        else{
+            const trueAll = types.map(t => true);
+            setIsColumnReady(trueAll);
         }
     }, [transactionsByAccount])
 
     useEffect(()=>{
-        if(accounts.length > 0){
+        setIsLoading(true);
+        if(accounts.length > 0 && !isViewing){
           let transactionsPerAccount = accounts.map((a) => {
             const loa = getLoanByAccount(a.id);
             const interest = loa.interest;
-            const loanAmount = loa.amount;
             return {
                 bobocycle_id: bobo.id,
                 session_number: index,
@@ -195,24 +199,99 @@ export default function SessionTabs({boboDetails, index}){
                 loan: loa,
             }});
           setTransactionsByAccount(transactionsPerAccount);
+          setIsLoading(false);
         }
+
+        if(accounts.length > 0 && isViewing){
+            const fetchHistory = async () => {
+                try{
+                    const record = await sessionRecord();
+                    setSessionHistory(record);
+                    setIsLoading(false);
+                }catch(error){
+                console.error("error", error)
+                }
+            }
+            fetchHistory();
+          }
       }, [accounts]);
 
+      const findThisTransaction = (ttype_id, account_id) => {
+        if(sessionHistory){
+            const sessionData = sessionHistory.data;
+            return sessionData.find(sd => {
+                return sd.account_id === account_id && sd.ttype_id === ttype_id;
+            });
+        }
+        return null;
+      }
+
+    const checkSessionExists = async () => {
+        try{
+            const getSession = await checkIfSessionExists(bobo.id, index);
+            return getSession;
+        }catch(error){
+            console.error("Can't fetch session table. ", error)
+        }
+    }
+
+    const sessionRecord = async() => {
+        try{
+            const history = await getTransactionsBySession(bobo.id, index);
+            console.log("hostory ", history)
+            return history;
+        }catch(error){
+            console.log("error in get transaction by session")
+        }
+    }
+
     useEffect(() => {
-        
+        if(sessionHistory){
+            let transactionsPerAccount = accounts.map((a) => {
+                const loa = getLoanByAccount(a.id);
+                const interest = loa.interest;
+                return {
+                    bobocycle_id: bobo.id,
+                    session_number: index,
+                    date: format(sessionDate, 'yyyy-MM-dd'),
+                    account_id: a.id,
+                    name: a.name,
+                    loan: loa,
+                    transactions: types.map((tab, i) => { 
+                    const transactionHistory = findThisTransaction(tab.id, a.id);
+                        const transaction = {
+                            ttype_id: tab.id, 
+                            type_label: tab.label,
+                            amount: transactionHistory? transactionHistory.amount: 0,
+                            isOptional: tab.isOptional,
+                            status: transactionHistory? transactionHistory.status: -1,
+                        }
+                        if(tab.label === "Loan")
+                            transaction.newLoan = 0;
+                        return transaction;
+                    }),
+                }});
+            setTransactionsByAccount(transactionsPerAccount);
+            }    
+    }, [sessionHistory]);
+
+    useEffect(() => {
         const fetchData = async () => {
-          setIsLoading(true);
-          try {
-            setLoans(await fetchLoans());
-            setAccounts(await fetchAccounts());
-            setIsLoading(false);
-          } catch (err) {
-            console.error(err);
-            setIsLoading(false);
-          }
-        };
-    
+            setIsLoading(true);
+            try{
+                const sessionExists = await checkSessionExists();
+                setIsViewing(sessionExists.length > 0);
+                setLoans(await fetchLoans());
+                setAccounts(await fetchAccounts());
+                setIsLoading(false);
+            } catch (err) {
+                console.error("Error fetching data:", err);
+            } finally {
+                setIsLoading(false);
+            }
+        }
         fetchData();
+
       }, [bobo]);
 
     useEffect(() => {
@@ -383,7 +462,7 @@ export default function SessionTabs({boboDetails, index}){
                     }
                     <li key="submit" className="flex items-center text-white dark:text-blue-500">
                         <button 
-                            disabled={!isColumnReady.every(Boolean)} 
+                            disabled={isViewing || !isColumnReady.every(Boolean)} 
                             onClick={handleAllSessionTransactions}
                             className="bg-blue-500 hover:bg-blue-600 py-1 px-2 rounded-lg disabled:opacity-50">
                             Submit
@@ -412,7 +491,7 @@ export default function SessionTabs({boboDetails, index}){
                 (
                     <TransactionTable 
                         // disabledOperations={isDataSaved[activeTab]} 
-                        isViewing={false}
+                        isViewing={isViewing}
                         // saveDataFromTable={saveDataFromTable}
                         isOptional={types[activeTab].isOptional}
                         // isLoanTab={activeTab === types.length-1}
