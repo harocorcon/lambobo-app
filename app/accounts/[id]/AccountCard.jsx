@@ -4,7 +4,7 @@ import { getBoboName, getBoboSummary } from "@/app/actions/boboController";
 import { useState } from "react";
 
 
-export default function AccountCard({ account, loan, toggleShowForm }) {
+export default function AccountCard({ total, missed, account, loan, toggleShowForm }) {
     const [isLoading, setIsLoading] = useState(false);
     const [transactions, setTransactions] = useState([{}]);
     const [boboName, setBoboName] = useState('');
@@ -12,7 +12,7 @@ export default function AccountCard({ account, loan, toggleShowForm }) {
 
     return(
         <>
-        <div className="justify-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6">
+        <div className="justify-center items-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6">
             <div className="flex flex-col items-center justify-center mb-2">
                 <svg xmlns="http://www.w3.org/2000/svg" className="size-6" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
@@ -26,7 +26,9 @@ export default function AccountCard({ account, loan, toggleShowForm }) {
 
             <div
                 className="block text-slate-600  text-xs font-light mb-4">
-                <p className="p-1 font-bold text-xs">Total Contribution: </p>
+                <p className="p-1 font-bold text-xs">Total Contribution:
+                    <span className="pl-2 font-normal"> {total}</span>
+                </p>
                 <p className="p-1 font-bold text-xs">Current Loan: 
                     <span className="pl-2 font-normal">{loan.amount ?? 0 }</span>
                     <button className="ml-2" onClick={toggleShowForm}>
@@ -36,7 +38,9 @@ export default function AccountCard({ account, loan, toggleShowForm }) {
                         </svg>
                     </button>
                 </p>
-                <p className="p-1 font-bold text-xs">Missed Payment: <span className="font-normal">2346</span></p>
+                <p className="p-1 font-bold text-xs">Missed Payment: 
+                    <span className="pl-2 font-normal"> {missed}</span>
+                </p>
             </div>
         </div>
 

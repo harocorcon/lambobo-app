@@ -8,7 +8,7 @@ import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { createLoan, getLoanByAccount, updateLoan } from "@/app/actions/loanController";
 import dayjs from "dayjs";
-import { getAllTransactionsByAccount } from "@/app/actions/transactionController";
+import { getAllTransactionsByAccount, getTotalTransactionAmountByAccount, resolveTransaction } from "@/app/actions/transactionController";
 import { getBoboSummary } from "@/app/actions/boboController";
 
 export default function AccountPage() {
@@ -22,6 +22,9 @@ export default function AccountPage() {
     const [loan, setLoan] = useState(null);
     const [transactions, setTransactions] = useState([]);
     const [bobo, setBobo] = useState({});
+    const [isUpdating, setIsUpdating] = useState(false);
+    const [totalContribution, setTotalContribution] = useState(0);
+    const [missedPayment, setMissedPayment] = useState(0);
 
     const fetchAccount = async(id) => {
         try{
@@ -70,6 +73,15 @@ export default function AccountPage() {
         setShowLoanForm(!showLoanForm)
     }
 
+    const getContribution = async (status) => {
+        try{
+            const sum = await getTotalTransactionAmountByAccount(account.id, status);
+            return sum;
+        }catch(error){
+            console.serror("Error in computing sum of contributions for acount#", account.id)
+        }
+    }
+
     useEffect(()=>{
         const loadContents = async () => {
             setIsLoading(true);
@@ -85,7 +97,10 @@ export default function AccountPage() {
         if (account && account.bobocycle_id) {
             const loadBobo = async () => {
               setBobo(await fetchBoboDetails(account.bobocycle_id));
+              setTotalContribution(await getContribution(1));
+              setMissedPayment(await getContribution(0));
             };
+
             loadBobo();
         }
     }, [account])
@@ -128,6 +143,25 @@ export default function AccountPage() {
         }
     }
 
+    const handleResolveTransaction = async (transaction) => {
+        setIsUpdating(true);
+        try{
+            const resolved = await resolveTransaction(transaction.id);
+            console.log("resolved successfully//", resolved.data)
+        }catch(error){
+            console.error("Error in resolving this transaction.")
+        }finally{
+            setIsUpdating(false);
+        }
+    }
+
+    useEffect(() => {
+        const fromResolving = async () => {
+            setTransactions(await fetchTransactions(id));
+        }
+        fromResolving();
+    }, [isUpdating])
+
     return(
         <>
         { isLoading ? (
@@ -158,6 +192,8 @@ export default function AccountPage() {
             ):(
                 <>
                 <AccountCard 
+                    total={totalContribution-loan.amount}
+                    missed={missedPayment}
                     account={account} 
                     loan={loan}
                     toggleShowForm={toggleShowForm}/>
@@ -166,6 +202,7 @@ export default function AccountPage() {
                 <AccountTransactions 
                     transactions={transactions} 
                     transactionTypes={bobo.types} 
+                    handleResolveTransaction={handleResolveTransaction}
                 />
                 </>
             )

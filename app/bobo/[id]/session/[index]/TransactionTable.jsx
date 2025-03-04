@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoanFormModal from "@/app/components/LoanFormModal"
+import Link from "next/link";
 
 export default function 
     TransactionTable({
@@ -101,12 +102,13 @@ export default function
                                 </td>
 
                             <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                {d.name}
+                                <Link href={`/accounts/${d.account_id}`}>
+                                    {d.name}
+                                </Link>
                             </td>
 
                             
                             {isLoanTab && <td key={"newloan-" + key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                                {/* {d.transactions[activeTab].newLoan} */}
                                 {d.loan.amount ?? ''}
                             </td>}
 

@@ -113,8 +113,34 @@ export async function createTransaction( transactions ){
     }
 }
 
+export async function resolveTransaction( transaction_id ){
+    console.log("resolve this transaction: ", transaction_id);
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data, error } = await (await supabase)
+                .from('transactions')
+                .update({status: 1})
+                .eq('id', transaction_id)
+    
+        if (error){
+            console.error(error)
+        }
+        return {
+            success: true,
+            data: data,
+            message: "One transaction is updated."
+        }
+    
+    } catch(error){
+        console.error(error)
+    }
+}
+
 export async function getTransactionByAccountPerSession( details ){
-    // console.log("details: ", details)
     const { account_id, session_number, bobocycle_id, ttype_id } = details;
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
@@ -159,13 +185,48 @@ export async function getTransactionsBySession(bobocycle_id, session_number){
                 .select('*') 
                 .eq('session_number', session_number)
                 .eq('bobocycle_id', bobocycle_id)
-
-        console.log("sessionController: gettran.... ", transactions)
         
         if(error){
             console.error("Error in fetching transactions for session#", session_number, error)
             return;
         }
+
+        return {
+            success: true,
+            data: transactions,
+            message: "Retrieved transactions for session ", session_number
+        }
+    } catch(error){
+        console.error("Error in fetching transactions for account#", error)
+    }
+}
+
+export async function getTotalTransactionAmountByAccount(account_id, status){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data: transactions, error } = await (await supabase)
+                .from('transactions')
+                .select('amount') 
+                .eq('account_id', account_id)
+                .eq('status', status)
+        
+        if(error){
+            console.error("Error in fetching transactions for session#", session_number, error)
+            return;
+        }
+        if (!transactions || transactions.length === 0) {
+            return 0
+        }
+        
+        const sum = transactions.reduce((accumulator, transaction) => {
+          return accumulator + transaction.amount;
+        }, 0); // Initialize accumulator to 0
+        console.log(transactions.length, "--sum: ", sum)
+        return sum;
 
         return {
             success: true,
