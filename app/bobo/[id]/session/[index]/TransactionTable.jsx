@@ -7,15 +7,12 @@ import Link from "next/link";
 
 export default function 
     TransactionTable({
-        isViewing, // can't udate payment
+        isViewing,
         isLoanTab, 
         disabledOperations, 
-        // data,
-        sessionNumber,
         transactionsByAccount,
         activeTab,
         updateTransactionsByAccount,
-        types,
         updateLoanToSave,
     }){
     const router = useRouter();
@@ -26,25 +23,36 @@ export default function
 
     useEffect(()=>{
         setDisableSubmit(false);
-        if(transactionsByAccount && !transactionsByAccount[0]?.transactions[activeTab].isOptional){
-            transactionsByAccount.map((t)=>{
-                if(t.transactions[activeTab].status < 0)
-                    setDisableSubmit(true)
-            })
-        }
-        if( transactionsByAccount && total.length < 1){
-            let init = [];
-            transactionsByAccount.map((t)=>init.push(0))
-            setTotal(init)
-        }
-        if(transactionsByAccount && isLoanTab){
-            let totalLoan = 0;
-            transactionsByAccount.map(tba => {
-                totalLoan += tba.transactions[activeTab].amount    
-            })
-            const updateTotal = total;
-            updateTotal[activeTab] = totalLoan;
-            setTotal(updateTotal);
+        if(!isViewing && transactionsByAccount){
+            if(!transactionsByAccount[0]?.transactions[activeTab].isOptional){
+                transactionsByAccount.map((t)=>{
+                    if(t.transactions[activeTab].status < 0)
+                        setDisableSubmit(true)
+                })
+            }
+            if(total.length < 1){
+                let init = [];
+                transactionsByAccount.map((t)=>init.push(0))
+                setTotal(init)
+            }
+            if(isLoanTab){
+                let totalLoan = 0;
+                transactionsByAccount.map(tba => {
+                    totalLoan += tba.transactions[activeTab].amount    
+                })
+                const updateTotal = total;
+                updateTotal[activeTab] = totalLoan;
+                setTotal(updateTotal);
+            }
+        }else if(isViewing && transactionsByAccount){
+            let temp = new Array(transactionsByAccount[0]?.transactions.length).fill(0);
+            transactionsByAccount && transactionsByAccount.map((transaction)=>{
+                transaction.transactions.map((type, i) => {
+                    if(type.status > 0)
+                        temp[i] += type.amount;
+                })
+            });
+            setTotal(temp);
         }
     }, [transactionsByAccount])
     
@@ -170,13 +178,8 @@ export default function
                     </table>
                 </div>
 
-                <div className="flex items-center text-center justify-center">
-                    <p className="mr-6 w-24">Total: {total[activeTab]}</p>
-                    {/* <button className="inline-flex ml-6 text-white bg-blue-500 hover:bg-blue-600 p-2 rounded-md disabled:opacity-50 disabled:pointer-events-none"
-                        disabled={disableSubmit}
-                        onClick={saveTransactions}>
-                        Submit
-                    </button> */}
+                <div className="bg-blue-500 rounded-md text-white py-3 flex items-center text-center justify-center">
+                    <p className="mr-6 w-24">Total: <span className="font-semibold ml-5">{total[activeTab]}</span></p>
                 </div>
 
                 <LoanFormModal 
