@@ -14,6 +14,7 @@ export default function
         activeTab,
         updateTransactionsByAccount,
         updateLoanToSave,
+        updateSessionStats,
     }){
     const router = useRouter();
     const [total, setTotal] = useState([]);
@@ -55,6 +56,13 @@ export default function
             setTotal(temp);
         }
     }, [transactionsByAccount])
+
+    useEffect(() => {
+        // not including the last since it must be the loan
+        const collection = total.slice(0, total.length-1)
+                                .reduce((accumulator, currentValue) => accumulator + currentValue, 0);
+        updateSessionStats({collection, releasedLoan: total[total.length-1]});
+    }, [total])
     
     const handleStatusChange = (key, value) => {
         let currentStatus = transactionsByAccount[key].transactions[activeTab].status;

@@ -192,7 +192,7 @@ export default function AccountPage() {
             ):(
                 <>
                 <AccountCard 
-                    total={totalContribution-loan.amount}
+                    total={loan.amount > 0? totalContribution - loan.amount: totalContribution }
                     missed={missedPayment}
                     account={account} 
                     loan={loan}
