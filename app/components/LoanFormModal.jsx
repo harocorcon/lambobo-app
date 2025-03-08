@@ -20,7 +20,6 @@ export default function LoanFormModal({
             {
                 showModal && (
                     <div className="fixed inset-0 flex flex-col items-center justify-center bg-gray-500 bg-opacity-75"
-                        
                     >
                         <div className="relative">
                             <button type="button" className="absolute top-3 left-44 text-gray-800 p-2"
@@ -32,6 +31,7 @@ export default function LoanFormModal({
                             </button>
                         </div>
                         <div className="bg-white rounded-lg p-8 max-w-md w-full">
+                            <p className="text-center text-sm">{loanDetails.name}</p>
                             <LoanForm 
                                 loanDetails={loanDetails} 
                                 setShowLoanModal={setShowLoanModal}

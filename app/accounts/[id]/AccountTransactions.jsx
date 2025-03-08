@@ -78,7 +78,7 @@ export default function AccountTransactions({transactions, transactionTypes, han
                                                 <td className="w-1/3 text-right py-1">
                                                     <button
                                                         onClick={()=>handleResolve(s, index)} 
-                                                        className={`${s.status > 0? getTransactionLabel(s.ttype_id) === "Loan"? 'bg-blue-600': 'bg-green-500':'bg-gray-700'} text-xs text-white rounded-lg py-1 px-2`}>
+                                                        className={`${s.status > 0? getTransactionLabel(s.ttype_id) === "Loan"? 'bg-blue-600': 'bg-green-500':'bg-red-700'} text-xs text-white rounded-lg py-1 px-2`}>
                                                         {isResolving && (s.status === 0 && indexLoading===index) &&
                                                         (<svg aria-hidden="true" className="inline-block mr-2 w-3 h-3 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>

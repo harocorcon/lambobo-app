@@ -81,7 +81,6 @@ export async function getMostRecentSession(bobocycle_id){
                 .order('date', { ascending: false }) // Or 'session_number' or 'created_at'
                 .limit(1);
         
-        console.log("session most recent ", data)
         if (error){
             console.error(error)
         }

@@ -55,36 +55,12 @@ export default function LoanForm({
             account_id: loanDetails.account_id,
             loanId: loanDetails.loan.id ?? -1,
         }
-        // console.log(loanDetails, "newloaaan ", newLoan);
         setLoanUpdate(newLoan);
-        // if(loan?.id > -1){
-        //     updateThisLoan({...newLoan, id: loan.id});
-            
-        // }else{
-        //     let {data, error } = createThisLoan(newLoan);
-        // }
         
         setTimeout(() => {
             setShowLoanModal(false)
         }, 1000);
     }
-    
-    const updateThisLoan = async(loanData) =>{
-        try{
-            await updateLoan(loanData);
-        }catch(error){
-            console.error("Error in updating the loan", loanDetails.loan.id, error)
-        }
-    }
-
-    const createThisLoan = async(loanData) => {
-        try{
-            await createLoan(loanData);
-        }catch(error){
-            console.error("Error in creating a new loan", error)
-        }
-    }
-
 
     return(
         <>
