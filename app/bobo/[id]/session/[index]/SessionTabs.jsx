@@ -452,7 +452,7 @@ export default function SessionTabs({boboDetails, index}){
 
     return (
         <div className="mt-2">
-            <SessionCard sessionStats={sessionStats} date={sessionDate} boboName={bobo.name} index={index}/>
+            <SessionCard sessionStats={sessionStats} date={sessionDate} boboName={bobo.name} index={index} isViewing={isViewing} />
 
         <div className="py-5">
             <ul className="flex items-center w-full p-3 space-x-2 text-sm font-medium text-center text-gray-500 bg-white border border-gray-200 rounded-lg shadow-xs dark:text-gray-400 sm:text-base dark:bg-gray-800 dark:border-gray-700 sm:p-4 sm:space-x-4 rtl:space-x-reverse">
@@ -484,7 +484,6 @@ export default function SessionTabs({boboDetails, index}){
                         <li key={index} className="me-1 mt-2">
                             <button onClick={()=>{handleTabChange(index)}}
                                 aria-current="page" 
-                                // className={`${isDataSaved[activeTab] && activeTab === index  ? 'opacity-50':''} inline-block pt-4 pb-4 pl-2 pr-2 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 className={`inline-block pt-4 pb-4 pl-2 pr-2 rounded-t-lg ${activeTab === index ? 'text-white bg-blue-500 hover:bg-blue-600' : 'text-blue-600 bg-gray-100 dark:bg-gray-800 dark:text-blue-500 hover:bg-gray-200 dark:hover:bg-gray-700'}`}
                                 >    {type.label}
                             </button>
@@ -497,11 +496,8 @@ export default function SessionTabs({boboDetails, index}){
             { !isLoading ? 
                 (
                     <TransactionTable 
-                        // disabledOperations={isDataSaved[activeTab]} 
                         isViewing={isViewing}
-                        // saveDataFromTable={saveDataFromTable}
                         isOptional={types[activeTab].isOptional}
-                        // isLoanTab={activeTab === types.length-1}
                         isLoanTab={types[activeTab].label==="Loan"}
                         sessionNumber={index}
                         transactionsByAccount = {transactionsByAccount}

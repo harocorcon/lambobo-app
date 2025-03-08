@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
+import Link from "next/link";
 
 export default function AccountTransactions({transactions, transactionTypes, handleResolveTransaction}){
     const tabs = ["All", "Missed", "Paid"];
@@ -32,7 +33,6 @@ export default function AccountTransactions({transactions, transactionTypes, han
         if(transaction.status < 1){
             setIndexLoading(i);
             setIsResolving(true);
-            console.log("kani magresolve,")
             handleResolveTransaction(transaction);
             setTimeout(() => {
                 setIsResolving(false);
@@ -44,29 +44,18 @@ export default function AccountTransactions({transactions, transactionTypes, han
     return (
         <div className="mt-2">
             <h1 className="mx-0">Transactions</h1>
-        
-                {/* <ul className="mt-2 flex flex-wrap text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:border-gray-700 dark:text-gray-400">
-                    {tabs.map((tab, index) => (
-                        <li key={index} className="me-1 mt-2">
-                            <button 
-                                aria-current="page" 
-                                className={` inline-block px-2 py-3 rounded-t-lg text-white bg-blue-400 hover:bg-blue-500 dark:hover:bg-gray-700`}
-                                >    {tab}
-                            </button>
-                        </li>
-                    ))}
-                </ul> */}
-
                 {
                     sessions && (
                         sessions.map((session, index) => (
                             <div key={'sessioncard-'+index} className="flex flex-col py-2">
 
                             <div className="text-center text-xs relative">
+                                <Link href={`/bobo/${transactionTypes[0].bobocycle_id}/session/${index+1}`}>
                                 <div className="absolute inset-x-0 top-1.5 h-px bg-gray-300"></div>
                                 <p className="bg-black inline-block px-4 mb-3 text-white rounded-lg relative">
                                     {index + 1}: {dayjs(session[0].date).format('MMMM D, YYYY')}
                                 </p>
+                                </Link>
                             </div>
 
                                 <table className="text-xs table-auto w-full">

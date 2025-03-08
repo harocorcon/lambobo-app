@@ -47,13 +47,17 @@ export default function
             }
         }else if(isViewing && transactionsByAccount){
             let temp = new Array(transactionsByAccount[0]?.transactions.length).fill(0);
+            let missed = 0;
             transactionsByAccount && transactionsByAccount.map((transaction)=>{
                 transaction.transactions.map((type, i) => {
                     if(type.status > 0)
                         temp[i] += type.amount;
+                    else if(type.status === 0)
+                        missed += 1;
                 })
             });
             setTotal(temp);
+            updateSessionStats({ missed });
         }
     }, [transactionsByAccount])
 

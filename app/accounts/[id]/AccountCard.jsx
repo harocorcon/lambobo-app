@@ -1,12 +1,9 @@
 'use client';
 
-import { getBoboName, getBoboSummary } from "@/app/actions/boboController";
 import { useState } from "react";
 
 
 export default function AccountCard({ total, missed, account, loan, toggleShowForm }) {
-    const [isLoading, setIsLoading] = useState(false);
-    const [transactions, setTransactions] = useState([{}]);
     const [boboName, setBoboName] = useState('');
 
 

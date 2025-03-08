@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import Link from "next/link";
 
-export default function SessionCard({sessionStats, date, boboName, index}){
+export default function SessionCard({sessionStats, date, boboName, index, isViewing}){
     return (
         <div className="justify-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6 items-center"> {/* items-center for horizontal centering */}
             <div className="flex items-center mb-2 w-full justify-center"> {/* w-full and justify-center for title centering */}
@@ -59,10 +59,11 @@ export default function SessionCard({sessionStats, date, boboName, index}){
                         <td className="py-1 font-bold">Total Collection:</td>
                         <td className="py-1 text-right">{sessionStats.collection}</td> 
                         </tr>
+                        {isViewing && 
                         <tr>
                         <td className="py-1 font-bold">Missed Payments:</td>
-                        <td className="py-1 text-right">3</td>
-                        </tr>
+                        <td className="py-1 text-right">{sessionStats.missed}</td>
+                        </tr>}
                         <tr>
                         <td className="py-1 font-bold">Released Loan:</td>
                         <td className="py-1 text-right">{sessionStats.releasedLoan}</td>
