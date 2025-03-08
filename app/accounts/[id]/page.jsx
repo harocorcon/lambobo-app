@@ -51,7 +51,6 @@ export default function AccountPage() {
     const fetchBoboDetails = async(id) => {
         try{
             const bobo = await getBoboSummary(id);
-            console.log("bobo, ", bobo);
             return { name: bobo.bobo.name, types: bobo.types};
         }catch(error){
             console.error("Error in fetching account. ", error)
@@ -192,7 +191,7 @@ export default function AccountPage() {
             ):(
                 <>
                 <AccountCard 
-                    total={totalContribution-loan.amount}
+                    total={loan.amount > 0? totalContribution - loan.amount: totalContribution }
                     missed={missedPayment}
                     account={account} 
                     loan={loan}

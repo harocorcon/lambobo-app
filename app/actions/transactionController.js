@@ -1,6 +1,7 @@
 'use server';
 
 import { createClient } from "../utils/supabase/server";
+import { getTransactionTypes } from "./boboController";
 
 
 export async function createTransactions( transactions ){
@@ -225,15 +226,62 @@ export async function getTotalTransactionAmountByAccount(account_id, status){
         const sum = transactions.reduce((accumulator, transaction) => {
           return accumulator + transaction.amount;
         }, 0); // Initialize accumulator to 0
-        console.log(transactions.length, "--sum: ", sum)
+        
         return sum;
-
-        return {
-            success: true,
-            data: transactions,
-            message: "Retrieved transactions for session ", session_number
-        }
     } catch(error){
         console.error("Error in fetching transactions for account#", error)
+    }
+}
+
+export async function computeAllTransactions(id){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const {data: types} = await getTransactionTypes(id);
+        const totalByTtype = types.map(({ id, label }) => ({ id, label, total: 0 }));
+
+        let allTransactions = [];
+        let from = 0;
+        let to = 999;
+        let fetching = true;
+
+        while(fetching){
+            const { data, error } = await (await supabase)
+                    .from('transactions')
+                    .select('*') 
+                    .eq('bobocycle_id', id)
+                    .range(from, to);
+            
+            if(error){
+                console.error("Error in fetching transactions for session#", session_number, error)
+                return null;
+            }
+            allTransactions = allTransactions.concat(data);
+            fetching = !(data.length < (to - from + 1) || data.length === 0)
+            from = to + 1;
+            to = to + 1000;
+        }
+        
+        let missedCount = 0;
+
+        allTransactions && allTransactions.forEach(transaction => {
+            const type = totalByTtype.find(type => type.id === transaction.ttype_id);
+            if (transaction.status == 1 && transaction.amount > 0) {
+              type.total += transaction.amount;
+            }
+            else{
+                missedCount += 1;
+            }
+        });
+
+        console.log(missedCount, allTransactions.length, "typessss in computing transactions..... ", totalByTtype)
+        return {
+            totalByTtype, missedCount
+        }
+    } catch(error){
+        console.error("Error in computing all transactions", error)
     }
 }

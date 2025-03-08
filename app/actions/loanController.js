@@ -100,7 +100,6 @@ export async function getLoanByAccount( account_id ){
 }
 
 export async function updateLoan( loan ){
-     
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     if (!data?.user) {
@@ -108,10 +107,14 @@ export async function updateLoan( loan ){
     }
    
     const { loan_id, amount, session_number, applied_on } = loan;
+    let is_active = true;
+    if(amount === 0){
+        is_active = false;
+    }
     try {
         const { data, error } = await (await supabase)
                 .from('loans')
-                .update({amount, applied_on, session_number, is_active: true, is_complete: true}) 
+                .update({amount, applied_on, session_number, is_active, is_complete: true}) 
                 .eq('id', loan_id)
         if (error){
             console.error(error)
@@ -125,6 +128,32 @@ export async function updateLoan( loan ){
     } catch(error){
         console.error(error)
     }
+}
 
+export async function getTotalUnpaidLoans( id ) {
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    if (!data?.user) {
+        redirect('/login');
+    }
 
+    try {
+        const { data, error } = await (await supabase)
+                .from('loans')
+                .select('*')
+                .eq('is_active', true)
+                .eq('bobocycle_id', id)
+    
+        if (error){
+            console.error(error)
+        }
+
+        const sum = data.reduce((accumulator, d) => {
+            return accumulator + d.amount;
+          }, 0);
+    
+        return sum ?? 0;
+    } catch(error){
+        console.error(error)
+    }
 }

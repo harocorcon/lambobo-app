@@ -65,3 +65,27 @@ export async function checkIfSessionExists(bobocycle_id, session_number){
         }
     }
 }
+
+export async function getMostRecentSession(bobocycle_id){
+    const supabase = createClient();
+    const { data } = await (await supabase).auth.getUser();
+    
+    if (!data?.user) {
+        redirect('/login');
+    }
+    try {
+        const { data, error } = await (await supabase)
+                .from('sessions')
+                .select("*") 
+                .eq('bobocycle_id', bobocycle_id)
+                .order('date', { ascending: false }) // Or 'session_number' or 'created_at'
+                .limit(1);
+        
+        if (error){
+            console.error(error)
+        }
+        return data[0];
+    } catch(error){
+        console.error(error)
+    }
+}

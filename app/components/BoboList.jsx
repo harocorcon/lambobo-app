@@ -5,6 +5,7 @@ import { getAllBoboSummary } from "../actions/boboController";
 import { useEffect, useState } from "react";
 import { isUserValid } from "../actions/userController";
 import BoboCard from "./BoboCard";
+import Link from "next/link";
 
 
 export default function BoboList() {
@@ -37,9 +38,9 @@ export default function BoboList() {
             <h1 className="text-xl font-extrabold mx-auto p-3">{header}</h1>
                 {!fetching ? (
                     boboDetails.map((detail, key) => (
-                        <div key={key}>
+                        <Link key={key} href={`/bobo/${detail.bobo.id}`}>
                             <BoboCard boboDetails={detail}/>
-                        </div>
+                        </Link>
                     ))
                     ) : (
                         <div className="flex justify-center items-center">

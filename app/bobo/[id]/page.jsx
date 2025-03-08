@@ -1,4 +1,5 @@
 import { getBoboSummary } from "@/app/actions/boboController";
+import { getMostRecentSession } from "@/app/actions/sessionController";
 import AccountMenu from "../../components/AccountMenu";
 import BoboCard from "../../components/BoboCard";
 import { isUserValid } from "@/app/actions/userController";
@@ -9,7 +10,7 @@ import dayjs from "dayjs";
 export default async function BoboPage({ params }) {
     const { id } = await params;
     const boboDetails = await getBoboSummary(id);
-
+    const session = await getMostRecentSession(id);
     if(!isUserValid()){
         redirect("/login"); //Feb15 it redirects even without this
     }
@@ -20,7 +21,7 @@ export default async function BoboPage({ params }) {
 
     return (
         <div className="flex flex-col mx-auto items-center">
-            <BoboCard className="mx-auto" boboDetails={boboDetails} />
+            <BoboCard className="mx-auto" boboDetails={boboDetails} mostRecent={session} />
             {/* {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>} */}
             <AccountMenu boboDetails={boboDetails} canAddMembers={true}/>
             <BoboCalendar className="mx-auto" boboDetails={boboDetails} />

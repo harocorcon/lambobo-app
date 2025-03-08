@@ -99,7 +99,6 @@ export async function deleteAllAccounts(boboId){
 }
 
 export async function getAccountById( id ){
-    console.log(" id ", id)
     const supabase = createClient();
     const { data } = await (await supabase).auth.getUser();
     if (!data?.user) {
