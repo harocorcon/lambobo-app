@@ -6,11 +6,16 @@ import { isUserValid } from "@/app/actions/userController";
 import { redirect } from "next/dist/server/api-utils";
 import BoboCalendar from "./BoboCalendar"
 import dayjs from "dayjs";
+import AccountsSection from "./bahinay/AccountsSection";
+import { getBoboAccounts } from "@/app/actions/accountController";
 
 export default async function BoboPage({ params }) {
     const { id } = await params;
     const boboDetails = await getBoboSummary(id);
     const session = await getMostRecentSession(id);
+    const accounts = await getBoboAccounts(id);
+    console.log("acountss.... ", accounts);
+
     if(!isUserValid()){
         redirect("/login"); //Feb15 it redirects even without this
     }
@@ -22,8 +27,9 @@ export default async function BoboPage({ params }) {
     return (
         <div className="flex flex-col mx-auto items-center">
             <BoboCard className="mx-auto" boboDetails={boboDetails} mostRecent={session} />
-            {/* {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>} */}
-            <AccountMenu boboDetails={boboDetails} canAddMembers={true}/>
+            {dayjs().isBefore(boboDetails.bobo.startdate) &&<AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>}
+            {/* <AccountMenu boboDetails={boboDetails} canAddMembers={true}/> */}
+            {dayjs().isAfter(boboDetails.bobo.startdate) && <AccountsSection bahin={0} accounts={accounts} />}
             <BoboCalendar className="mx-auto" boboDetails={boboDetails} />
         </div>
     )

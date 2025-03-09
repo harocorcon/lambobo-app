@@ -174,57 +174,57 @@ export default function SessionTabs({boboDetails, index}){
 
     useEffect(()=>{
         setIsLoading(true);
-        if(accounts.length > 0 && !isViewing){
-          let transactionsPerAccount = accounts.map((a) => {
-            const loa = getLoanByAccount(a.id);
-            const interest = loa.interest;
-            return {
-                bobocycle_id: bobo.id,
-                session_number: index,
-                date: format(sessionDate, 'yyyy-MM-dd'),
-                transactions: types.map((tab, i) => { 
-                    const transaction = {
-                        ttype_id: tab.id, 
-                        type_label: tab.label,
-                        amount: tab.amount > 0? tab.amount: tab.label === "Loan"? 0: interest, 
-                        isOptional: tab.isOptional,
-                        status: -1,
+        if(accounts.length > 0){
+            if(!isViewing){
+                let transactionsPerAccount = accounts.map((a) => {
+                    const loa = getLoanByAccount(a.id);
+                    const interest = loa.interest;
+                    return {
+                        bobocycle_id: bobo.id,
+                        session_number: index,
+                        date: format(sessionDate, 'yyyy-MM-dd'),
+                        transactions: types.map((tab, i) => { 
+                            const transaction = {
+                                ttype_id: tab.id, 
+                                type_label: tab.label,
+                                amount: tab.amount > 0? tab.amount: tab.label === "Loan"? 0: interest, 
+                                isOptional: tab.isOptional,
+                                status: -1,
+                            }
+                            if(tab.label === "Loan")
+                                transaction.newLoan = 0;
+                            return transaction;
+                        }),
+                        account_id: a.id,
+                        name: a.name,
+                        loan: loa,
+                    }});
+                setTransactionsByAccount(transactionsPerAccount);
+                setIsLoading(false);
+            } else {
+                const fetchHistory = async () => {
+                    try{
+                        const record = await sessionRecord();
+                        setSessionHistory(record);
+                        setIsLoading(false);
+                    }catch(error){
+                        console.error("Error in fetching session", error)
                     }
-                    if(tab.label === "Loan")
-                        transaction.newLoan = 0;
-                    return transaction;
-                }),
-                account_id: a.id,
-                name: a.name,
-                loan: loa,
-            }});
-          setTransactionsByAccount(transactionsPerAccount);
-          setIsLoading(false);
-        }
-
-        if(accounts.length > 0 && isViewing){
-            const fetchHistory = async () => {
-                try{
-                    const record = await sessionRecord();
-                    setSessionHistory(record);
-                    setIsLoading(false);
-                }catch(error){
-                console.error("error", error)
                 }
+                fetchHistory();
             }
-            fetchHistory();
-          }
+        }
       }, [accounts]);
 
-      const findThisTransaction = (ttype_id, account_id) => {
-        if(sessionHistory){
-            const sessionData = sessionHistory.data;
-            return sessionData.find(sd => {
-                return sd.account_id === account_id && sd.ttype_id === ttype_id;
-            });
-        }
-        return null;
-      }
+    const findThisTransaction = (ttype_id, account_id) => {
+    if(sessionHistory){
+        const sessionData = sessionHistory.data;
+        return sessionData.find(sd => {
+            return sd.account_id === account_id && sd.ttype_id === ttype_id;
+        });
+    }
+    return null;
+    }
 
     const checkSessionExists = async () => {
         try{

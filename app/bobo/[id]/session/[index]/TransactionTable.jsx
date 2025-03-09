@@ -18,19 +18,11 @@ export default function
     }){
     const router = useRouter();
     const [total, setTotal] = useState([]);
-    const [disableSubmit, setDisableSubmit] = useState(false);
     const [showLoanModal, setShowLoanModal] = useState(false);
     const [loanDetails, setLoanDetails] = useState(null);
 
     useEffect(()=>{
-        setDisableSubmit(false);
         if(!isViewing && transactionsByAccount){
-            if(!transactionsByAccount[0]?.transactions[activeTab].isOptional){
-                transactionsByAccount.map((t)=>{
-                    if(t.transactions[activeTab].status < 0)
-                        setDisableSubmit(true)
-                })
-            }
             if(total.length < 1){
                 let init = [];
                 transactionsByAccount.map((t)=>init.push(0))
