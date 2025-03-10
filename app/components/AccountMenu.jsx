@@ -54,7 +54,6 @@ export default function AccountMenu({boboDetails, canAddMembers}) {
             <div id="add-member-menu" className="flex justify-between items-center">
                 <p className="w-auto font-bold">Accounts</p>
                 
-                {/*  canAddMembers if dateNow.isBefore(startdate) */}
                 {canAddMembers && 
                     <div className="flex-1 ml-4">
                         <button className=" hover:bg-blue-300 bg-blue-400 p-1 rounded-lg text-white text-xs"

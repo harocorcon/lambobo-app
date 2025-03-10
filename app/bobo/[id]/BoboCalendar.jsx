@@ -18,11 +18,9 @@ import {
   subMonths,
 } from 'date-fns'
 import Link from "next/link";
-// import { useRouter } from "next/router";
 
 
 export default function BoboCalendar({ boboDetails }){
-    // const router = useRouter();
     const { bobo } = boboDetails;
     const [sessions, setSessions] = useState([{session: 0, sessionDate: bobo.startdate}]);
 
@@ -76,7 +74,7 @@ export default function BoboCalendar({ boboDetails }){
     }
 
     return (
-        <div className="pt-16">
+        <div className="pt-8">
         <div className="max-w-md px-4 mx-auto sm:px-7 md:max-w-4xl md:px-6">
             <div className="md:grid md:grid-cols-2 md:divide-x md:divide-gray-200">
                 <div className="md:pr-14">
@@ -155,8 +153,6 @@ export default function BoboCalendar({ boboDetails }){
                                             !isEqual(day, selectedDay) && 'hover:bg-gray-200',
                                             (isEqual(day, selectedDay) || isToday(day)) &&
                                             'font-semibold',
-                                            // sessions.some((session) => isEqual(day, dayjs(session.sessionDate))) &&
-                                            // 'border border-blue-500 hover:bg-sky-500 bg-sky-400',
                                             'mx-auto flex h-8 w-8 items-center justify-center rounded-full'
                                         )}>
                                             <time dateTime={format(day, 'yyyy-MM-dd')}>

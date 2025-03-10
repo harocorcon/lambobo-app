@@ -10,7 +10,7 @@ export default function AccountsSection ({accounts, bahin}) {
             <div className="-m-1.5 overflow-x-auto">
                 <div className="p-1.5 min-w-full inline-block align-middle">
                 <div className="overflow-hidden">
-                    <h2>Accounts List</h2>
+                    <h2 className="text-center font-semibold">Account List</h2>
                     <table className="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -19,9 +19,9 @@ export default function AccountsSection ({accounts, bahin}) {
                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
                                 Name
                             </th>
-                        <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
+                        {bahin > 0 && <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
                                 Amount
-                        </th>
+                        </th>}
                         </tr>
                     </thead>
 
@@ -33,7 +33,7 @@ export default function AccountsSection ({accounts, bahin}) {
                                     {key+1}
                                 </td>
 
-                            <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                            <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-blue-500">
                                 <Link href={`/accounts/${a.account_id ? a.account_id: a.id}`}>
                                     {a.name}
                                 </Link>
