@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import LoanFormModal from "@/app/components/LoanFormModal"
 import Link from "next/link";
@@ -16,42 +15,48 @@ export default function
         updateLoanToSave,
         updateSessionStats,
     }){
-    const router = useRouter();
     const [total, setTotal] = useState([]);
     const [showLoanModal, setShowLoanModal] = useState(false);
     const [loanDetails, setLoanDetails] = useState(null);
+    const [payAll, setPayAll] = useState(false);
 
     useEffect(()=>{
-        if(!isViewing && transactionsByAccount){
-            if(total.length < 1){
-                let init = [];
-                transactionsByAccount.map((t)=>init.push(0))
-                setTotal(init)
+        if(transactionsByAccount){
+            if(!isViewing){
+                if(total.length < 1){
+                    let init = [];
+                    transactionsByAccount.map((t)=>init.push(0))
+                    setTotal(init)
+                }
+                if(isLoanTab){
+                    let totalLoan = 0;
+                    transactionsByAccount.map(tba => {
+                        totalLoan += tba.transactions[activeTab].amount    
+                    })
+                    const updateTotal = total;
+                    updateTotal[activeTab] = totalLoan;
+                    setTotal(updateTotal);
+                }
+            }else{
+                let temp = new Array(transactionsByAccount[0]?.transactions.length).fill(0);
+                let missed = 0;
+                transactionsByAccount && transactionsByAccount.map((transaction)=>{
+                    transaction.transactions.map((type, i) => {
+                        if(type.status > 0)
+                            temp[i] += type.amount;
+                        else if(type.status === 0)
+                            missed += 1;
+                    })
+                });
+                setTotal(temp);
+                updateSessionStats({ missed });
             }
-            if(isLoanTab){
-                let totalLoan = 0;
-                transactionsByAccount.map(tba => {
-                    totalLoan += tba.transactions[activeTab].amount    
-                })
-                const updateTotal = total;
-                updateTotal[activeTab] = totalLoan;
-                setTotal(updateTotal);
-            }
-        }else if(isViewing && transactionsByAccount){
-            let temp = new Array(transactionsByAccount[0]?.transactions.length).fill(0);
-            let missed = 0;
-            transactionsByAccount && transactionsByAccount.map((transaction)=>{
-                transaction.transactions.map((type, i) => {
-                    if(type.status > 0)
-                        temp[i] += type.amount;
-                    else if(type.status === 0)
-                        missed += 1;
-                })
-            });
-            setTotal(temp);
-            updateSessionStats({ missed });
         }
     }, [transactionsByAccount])
+
+    useEffect(()=> {
+        setPayAll(false);
+    }, [activeTab])
 
     useEffect(() => {
         // not including the last since it must be the loan
@@ -80,6 +85,21 @@ export default function
         setLoanDetails(transactionAccount)
     }
 
+    const handlePayAll = (event) => {
+        setPayAll(event.target.checked);
+        let tota = 0;
+        transactionsByAccount && transactionsByAccount.map((t, key) => {
+            if(t.transactions[activeTab].amount > 0){
+                updateTransactionsByAccount(key, payAll? -1: 1);
+                tota += t.transactions[activeTab].amount;
+            }
+        });
+        const updated = [...total];
+        updated[activeTab] = tota;
+        setTotal(updated);
+
+    }
+
     return (
         <div className="flex flex-col mt-3">
             <div className="-m-1.5 overflow-x-auto">
@@ -88,8 +108,6 @@ export default function
                     <table className="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
-                            {/* <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
-                            </th> */}
                             <th scope="col" className="px-6 py-3 text-start text-xs font-medium text-gray-500 uppercase">
                                 Name
                             </th>
@@ -99,7 +117,10 @@ export default function
                         {isLoanTab && <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">
                             New
                         </th>}
-                        {!isViewing && <th scope="col" className="px-6 py-3 text-end text-xs font-medium text-gray-500 uppercase">
+                        {!isViewing && <th scope="col" className="px-6 py-3 space-x-1 text-end text-xs font-medium text-gray-500 uppercase">
+                            { !isLoanTab && 
+                                <input checked={payAll} id="checked-checkbox" type="checkbox" value={payAll} onChange={handlePayAll} className="mr-3 w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+                            }
                             Action
                         </th>}
                         </tr>
@@ -108,18 +129,12 @@ export default function
                     <tbody className="divide-y divide-gray-200">
                         { transactionsByAccount && transactionsByAccount.map((d, key) => 
                             (<tr key={key} className="hover:bg-gray-100">
-                            
-                                {/* <td key={"cntr-"+key} className="px-2 py-4 whitespace-nowrap text-xs font-medium text-gray-500">
-                                    {key+1}
-                                </td> */}
+                                <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
+                                    <Link href={`/accounts/${d.account_id}`}>
+                                        {d.name}
+                                    </Link>
+                                </td>
 
-                            <td key={"name-"+key} className="px-2 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-                                <Link href={`/accounts/${d.account_id}`}>
-                                    {d.name}
-                                </Link>
-                            </td>
-
-                            
                             {isLoanTab && <td key={"newloan-" + key} className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                                 {d.loan.amount ?? ''}
                             </td>}
