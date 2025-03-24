@@ -39,7 +39,6 @@ export default function AccountMenu({boboDetails, canAddMembers}) {
         setSaving(true);
         try {
             await createAccounts(newAccounts, boboId);
-            // setShowForm(false);
             setNewAccounts([{name:"", phone:""}]);
         } catch (error) {
             console.error("Error saving accounts:", error);

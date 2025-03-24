@@ -417,7 +417,8 @@ export default function SessionTabs({boboDetails, index}){
         } catch(error) {
             console.error("Error saving accounts:", error);
         } finally {
-            setIsLoading(false);   
+            setIsViewing(true); 
+            setIsLoading(false);
         }
     }
 

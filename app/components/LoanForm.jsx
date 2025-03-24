@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import { useEffect, useState } from "react";
-import { createLoan, updateLoan } from "../actions/loanController";
 
 export default function LoanForm({
         loanDetails, 

@@ -9,7 +9,6 @@ export async function createLoan( loanData ){
     if (!data?.user) {
         redirect('/login');
     }
-    console.log(account_id, bobocycle_id, amount, session_number, applied_on, "createLoan ", loanData)
     try {
         const { data, error } = await (await supabase)
                 .from('loans')
@@ -92,7 +91,7 @@ export async function getLoanByAccount( account_id ){
         return {
             success: true,
             data: data,
-            message: `Retrieved ${data?.length} loans.`
+            message: `Retrieved id#${account_id} loan.`
         }
     } catch(error){
         console.error(error)
