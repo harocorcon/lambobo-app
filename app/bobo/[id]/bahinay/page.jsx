@@ -167,7 +167,7 @@ export default function BahinayPage(){
                         ))}
 
                         <tr>
-                        <td className="py-1 font-bold">Unpaid Loans</td>
+                        <td className="py-1 font-bold">Unpaid Loans:</td>
                         <td className="py-1 text-right font-serif text-red-500">
                             {totalUnpaidLoan}
                         </td> 

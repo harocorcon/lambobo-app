@@ -35,7 +35,7 @@ export default function BoboList() {
     let header = fetching? 'Loading...' : 'Bobo Cycle List'
     return (
         <div className="h-screen">
-            <h1 className="text-xl font-extrabold mx-auto p-3">{header}</h1>
+            <h1 className="text-3xl text-slate-600 font-semibold p-3">{header}</h1>
                 {!fetching ? (
                     boboDetails.map((detail, key) => (
                         <Link key={key} href={`/bobo/${detail.bobo.id}`}>
