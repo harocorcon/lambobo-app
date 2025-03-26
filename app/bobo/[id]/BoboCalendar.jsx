@@ -43,7 +43,7 @@ export default function BoboCalendar({ boboDetails }){
         const sessions = [];
         let currentDate = dayjs(start).startOf('isoWeek');
 
-        for (let i = 0; i < duration; i++) {
+        for (let i = 0; i <= duration; i++) {
             sessions.push({
                 sessionNumber: i + 1,
                 sessionDate: currentDate.format('YYYY-MM-DD'),
