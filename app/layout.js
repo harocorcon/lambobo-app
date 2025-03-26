@@ -5,11 +5,12 @@ import Header from "./components/Header";
 export const metadata = {
   title: "Lambobo App",
   description: "Dream Project 1",
-  viewport: { // Correct way to add viewport in app directory
-    width: 'device-width',
-    initialScale: 1
-  }
 };
+
+export const viewport = { // Correct way to add viewport in app directory
+  width: 'device-width',
+  initialScale: 1
+}
 
 export default function RootLayout({
   children,
