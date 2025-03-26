@@ -68,9 +68,9 @@ export default function AccountPage() {
         }
     }
 
-    const toggleShowForm = () => {
-        setShowLoanForm(!showLoanForm)
-    }
+    // const toggleShowForm = () => {
+    //     setShowLoanForm(!showLoanForm)
+    // }
 
     const getContribution = async (status) => {
         try{
@@ -104,27 +104,27 @@ export default function AccountPage() {
         }
     }, [account])
 
-    const handleLoan = (amount) => {
-        const newLoan = {
-            amount,
-            bobocycle_id: account?.bobocycle_id,
-            applied_on: dayjs().format('YYYY-MM-DD'),
-            account_id: id,
-            session_number: session,
-            is_active: true,
-            is_complete: true,
-        }
-        if(loan?.id > -1){
-            updateThisLoan({...newLoan, id: loan.id});
+    // const handleLoan = (amount) => {
+    //     const newLoan = {
+    //         amount,
+    //         bobocycle_id: account?.bobocycle_id,
+    //         applied_on: dayjs().format('YYYY-MM-DD'),
+    //         account_id: id,
+    //         session_number: session,
+    //         is_active: true,
+    //         is_complete: true,
+    //     }
+    //     if(loan?.id > -1){
+    //         updateThisLoan({...newLoan, id: loan.id});
             
-        }else{
-            let {data, error } = createThisLoan(newLoan);
-        }
+    //     }else{
+    //         let {data, error } = createThisLoan(newLoan);
+    //     }
         
-        setTimeout(() => {
-            setShowLoanForm(false);
-        }, 1000);
-    }
+    //     setTimeout(() => {
+    //         setShowLoanForm(false);
+    //     }, 1000);
+    // }
 
     const updateThisLoan = async(loanData) =>{
         try{
@@ -195,8 +195,9 @@ export default function AccountPage() {
                     missed={missedPayment}
                     account={account} 
                     loan={loan}
-                    toggleShowForm={toggleShowForm}/>
-                {showLoanForm && <LoanForm loan={loan.amount ?? 0} handleLoan={handleLoan}/>}
+                    // toggleShowForm={toggleShowForm}
+                    />
+                {/* {showLoanForm && <LoanForm loan={loan.amount ?? 0} handleLoan={handleLoan}/>} */}
 
                 <AccountTransactions 
                     transactions={transactions} 
