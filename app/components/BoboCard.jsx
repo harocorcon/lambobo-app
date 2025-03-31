@@ -45,7 +45,7 @@ export default function BoboCard({ boboDetails, mostRecent }) {
                     {mostRecent && 
                     <div className="flex items-center">
                         <p className="font-bold mr-2">Most Recent:</p>
-                        <Link className="inline-block text-blue-600 underline" href={`${bobo.id}/session/${mostRecent.session_number}`}>
+                        <Link className="inline-block text-blue-600 underline" href={`/bobo/${bobo.id}/session/${mostRecent.session_number}`}>
                             Session {mostRecent.session_number}{' '}{dayjs(mostRecent.date).format("MMMM DD, YYYY")}
                         </Link>
                     </div>}

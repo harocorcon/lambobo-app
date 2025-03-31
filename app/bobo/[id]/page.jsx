@@ -24,11 +24,11 @@ export default async function BoboPage({ params }) {
     }
 
     return (
-        <div className="flex flex-col mx-auto items-center">
-            <BoboCard className="mx-auto mt-4" boboDetails={boboDetails} mostRecent={session} />
+        <div className="flex flex-col mx-auto items-center pt-8">
+            <BoboCard className="mx-auto mt-4 p-4" boboDetails={boboDetails} mostRecent={session} />
             <BoboCalendar className="mx-auto" boboDetails={boboDetails} />
-            {/* {(dayjs().isBefore(boboDetails.bobo.startdate) || dayjs().isSame(boboDetails.bobo.startdate)) && <AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>} */}
-            <AccountMenu boboDetails={boboDetails} canAddMembers={true}/>
+            {(dayjs().isBefore(boboDetails.bobo.startdate) || dayjs().isSame(boboDetails.bobo.startdate)) && <AccountMenu boboDetails={boboDetails} canAddMembers={canAddMembers(boboDetails.bobo.startdate)}/>}
+            {/* <AccountMenu boboDetails={boboDetails} canAddMembers={true}/> */}
             {accounts > 0 && dayjs().isAfter(boboDetails.bobo.startdate) && <AccountsSection bahin={0} accounts={accounts} />}
         </div>
     )

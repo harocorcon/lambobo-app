@@ -6,11 +6,15 @@ import { useEffect, useState } from "react";
 import { isUserValid } from "../actions/userController";
 import BoboCard from "./BoboCard";
 import Link from "next/link";
+import { getMostRecentSession } from "../actions/sessionController";
+import { useRouter } from "next/navigation";
 
 
 export default function BoboList() {
-    const [boboDetails, setBoboDetails] = useState([]);
+    const router = useRouter();
+    const [boboList, setBoboList] = useState([]);
     const [fetching, setFetching] = useState(false);
+    const [lastSessions, setLastSessions] = useState([]);
 
     useEffect(()=>{
         async function fetchData() {
@@ -18,29 +22,52 @@ export default function BoboList() {
             if (!isUserValid()) {
                 redirect('/login');
             }
-        
             try {
                 const data = await getAllBoboSummary();
-                setBoboDetails(data);
+                setBoboList(data);
             } catch (error) {
                 console.error("Error fetching bobo details:", error);
             }finally{
                 setFetching(false);
             }
-            }
-      
+        }
         fetchData();
     }, []);
+
+    useEffect(() => {
+        if(boboList){
+            const sessions = async()=> {
+                setLastSessions(await recentSession());
+            }
+            sessions();
+        }
+    }, [boboList])
+
+    const recentSession = async()  => {
+        let sessions = [];
+        if(boboList){
+            boboList.map(async(bl, k) => {
+                let mysession = await getMostRecentSession(bl.bobo.id);
+                sessions.push(mysession);
+            })
+        }
+        return sessions;
+    }
+    const handleCardClick = (id) => {
+        router.push(`/bobo/${id}`)
+    }
 
     let header = fetching? 'Loading...' : 'Bobo Cycle List'
     return (
         <div className="h-screen">
             <h1 className="text-3xl text-slate-600 font-semibold p-3">{header}</h1>
                 {!fetching ? (
-                    boboDetails.map((detail, key) => (
-                        <Link key={key} href={`/bobo/${detail.bobo.id}`}>
-                            <BoboCard boboDetails={detail}/>
-                        </Link>
+                    boboList.map((detail, key) => (
+                        // <Link key={key} href={`/bobo/${detail.bobo.id}`}>
+                        <div key={key} className="justify-center" onClick={() => handleCardClick(detail.bobo.id)}>
+                            <BoboCard boboDetails={detail} mostRecent={lastSessions[key]}/>
+                        </div>
+                        // </Link>
                     ))
                     ) : (
                         <div className="flex justify-center items-center">
