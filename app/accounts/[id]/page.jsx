@@ -2,6 +2,7 @@
 
 import { getAccountById } from "@/app/actions/accountController";
 import AccountCard from "./AccountCard"
+import ResolveModal from "./ResolveModal";
 import LoanForm from "../../components/LoanForm"
 import AccountTransactions from "./AccountTransactions"
 import { useParams, useSearchParams } from "next/navigation";
@@ -13,11 +14,10 @@ import { getBoboSummary } from "@/app/actions/boboController";
 
 export default function AccountPage() {
     const id = useParams().id;
-    const searchPar = useSearchParams();
-    const session = searchPar.get('session');
     const [isLoading, setIsLoading] = useState(true);
-    const [showLoanForm, setShowLoanForm] = useState(false);
+    const [showResolveModal, setShowResolveModal] = useState(false);
     
+    const [thisTransaction, setThisTransaction] = useState({});
     const [account, setAccount] = useState(null);
     const [loan, setLoan] = useState(null);
     const [transactions, setTransactions] = useState([]);
@@ -104,53 +104,18 @@ export default function AccountPage() {
         }
     }, [account])
 
-    // const handleLoan = (amount) => {
-    //     const newLoan = {
-    //         amount,
-    //         bobocycle_id: account?.bobocycle_id,
-    //         applied_on: dayjs().format('YYYY-MM-DD'),
-    //         account_id: id,
-    //         session_number: session,
-    //         is_active: true,
-    //         is_complete: true,
-    //     }
-    //     if(loan?.id > -1){
-    //         updateThisLoan({...newLoan, id: loan.id});
-            
-    //     }else{
-    //         let {data, error } = createThisLoan(newLoan);
-    //     }
-        
-    //     setTimeout(() => {
-    //         setShowLoanForm(false);
-    //     }, 1000);
-    // }
-
-    const updateThisLoan = async(loanData) =>{
-        try{
-            await updateLoan(loanData);
-        }catch(error){
-            console.error("Error in updating the loan", loan.id, error)
-        }
-    }
-
-    const createThisLoan = async(loanData) => {
-        try{
-            await createLoan(loanData);
-        }catch(error){
-            console.error("Error in creating a new loan", error)
-        }
-    }
-
-    const handleResolveTransaction = async (transaction) => {
+    const handleResolveTransaction = async () => {
         setIsUpdating(true);
         try{
-            const resolved = await resolveTransaction(transaction.id);
+            const resolved = await resolveTransaction(thisTransaction.id);
             console.log("resolved successfully//", resolved.data)
         }catch(error){
             console.error("Error in resolving this transaction.")
         }finally{
-            setIsUpdating(false);
+            setTimeout(()=>{
+                setIsUpdating(false);
+                setShowResolveModal(false);
+            }, 500)
         }
     }
 
@@ -195,15 +160,30 @@ export default function AccountPage() {
                     missed={missedPayment}
                     account={account} 
                     loan={loan}
-                    // toggleShowForm={toggleShowForm}
                     />
-                {/* {showLoanForm && <LoanForm loan={loan.amount ?? 0} handleLoan={handleLoan}/>} */}
-
                 <AccountTransactions 
                     transactions={transactions} 
                     transactionTypes={bobo.types} 
                     handleResolveTransaction={handleResolveTransaction}
+                    setShowResolveModal={setShowResolveModal}
+                    setThisTransaction={setThisTransaction}
                 />
+
+                
+                <ResolveModal 
+                    showModal={showResolveModal} 
+                    handleResolveTransaction={handleResolveTransaction}
+                    closeModal={()=>setShowResolveModal(false)}
+                    details={{ 
+                        name:account.name, 
+                        amount: thisTransaction.amount, 
+                        session: thisTransaction.session_number,
+                        date: dayjs(thisTransaction.date).format('MMM D YYYY'),
+                        label: (bobo.types.find((t)=> thisTransaction.ttype_id === t.id))?.label ??''
+                    }}
+                />
+                
+
                 </>
             )
         }
