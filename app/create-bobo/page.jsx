@@ -29,7 +29,6 @@ export default function CreateBobo() {
         setIsLoading(true)
         try {
             const newBobo = await createBobo(formData);
-            console.log("returned newbobo", newBobo)
             setIsLoading(false);
             router.push("/")
         }catch(error){

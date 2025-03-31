@@ -66,9 +66,6 @@ export async function createBobo(formData){
             data: data,
             message: "Bobo Saved."
         }
-        
-        redirect("/")
-
     } catch(error){
         throw error
     }

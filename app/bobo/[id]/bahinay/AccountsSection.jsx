@@ -1,9 +1,6 @@
 import Link from "next/link";
 
-
-
 export default function AccountsSection ({accounts, bahin}) {
-
 
     return (
         <div className="flex flex-col mt-3">

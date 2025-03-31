@@ -9,7 +9,7 @@ export default function AccountCard({ total, missed, account, loan }) {
         <>
         <div className="justify-center items-center flex flex-col my-8 bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6">
             <div className="flex flex-col items-center justify-center mb-2">
-                {account && <h5 className="tracking-wider text-slate-800 text-4xl font-bold">
+                {account && <h5 className="tracking-wide text-slate-800 text-4xl font-bold">
                     {account.name}
                 </h5>}
             </div>
