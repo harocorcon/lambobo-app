@@ -3,12 +3,15 @@
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
 import Link from "next/link";
+import ResolveModal from "./ResolveModal";
 
-export default function AccountTransactions({transactions, transactionTypes, handleResolveTransaction}){
+export default function AccountTransactions({transactions, transactionTypes, setShowResolveModal, setThisTransaction, handleResolveTransaction}){
     const tabs = ["All", "Missed", "Paid"];
     const [sessions, setSessions] = useState([])
     const [isResolving, setIsResolving] = useState(false);
     const [indexLoading, setIndexLoading] = useState(-1);
+    // const [showResolveModal, setShowResolveModal] = useState(false);
+    const [details, setDetails] = useState({});
 
     useEffect(()=>{
         const sesh = {};
@@ -20,7 +23,7 @@ export default function AccountTransactions({transactions, transactionTypes, han
             }
             sesh[sessionNumber-1].push(t);
         });
-        setSessions(Object.values(sesh));
+        setSessions(Object.values(sesh).reverse());
 
     }, [transactions])
 
@@ -30,30 +33,25 @@ export default function AccountTransactions({transactions, transactionTypes, han
     }
 
     const handleResolve = (transaction, i) => {
-        if(transaction.status < 1){
-            setIndexLoading(i);
-            setIsResolving(true);
-            handleResolveTransaction(transaction);
-            setTimeout(() => {
-                setIsResolving(false);
-                setIndexLoading(-1);
-            }, 1000);
+        setThisTransaction(transaction);
+        if(transaction.status < 1 ){
+            setShowResolveModal(true);
         }
     }
 
     return (
         <div className="mt-2">
-            <h1 className="mx-0">Transactions</h1>
+            <h1 className="mx-auto font-bold text-lg">Transactions</h1>
                 {
                     sessions && (
                         sessions.map((session, index) => (
                             <div key={'sessioncard-'+index} className="flex flex-col py-2">
 
                             <div className="text-center text-xs relative">
-                                <Link href={`/bobo/${transactionTypes[0].bobocycle_id}/session/${index+1}`}>
+                                <Link href={`/bobo/${transactionTypes[0].bobocycle_id}/session/${session[0].session_number}`}>
                                 <div className="absolute inset-x-0 top-1.5 h-px bg-gray-300"></div>
                                 <p className="bg-black inline-block px-4 mb-3 text-white rounded-lg relative">
-                                    {index + 1}: {dayjs(session[0].date).format('MMMM D, YYYY')}
+                                    {session[0].session_number} : {dayjs(session[0].date).format('MMMM D, YYYY')}
                                 </p>
                                 </Link>
                             </div>
@@ -66,9 +64,9 @@ export default function AccountTransactions({transactions, transactionTypes, han
                                                 <td className="w-1/3 text-left py-1">{s.amount}</td>
                                                 <td className="w-1/3 text-right py-1">
                                                     <button
-                                                        onClick={()=>handleResolve(s, index)} 
+                                                        onClick={()=>handleResolve(s)} 
                                                         className={`${s.status > 0? getTransactionLabel(s.ttype_id) === "Loan"? 'bg-blue-600': 'bg-green-500':'bg-red-700'} text-xs text-white rounded-lg py-1 px-2`}>
-                                                        {isResolving && (s.status === 0 && indexLoading===index) &&
+                                                        {isResolving && (s.status === 0 && indexLoading===s.id) &&
                                                         (<svg aria-hidden="true" className="inline-block mr-2 w-3 h-3 text-gray-200 animate-spin dark:text-gray-600 fill-blue-600" viewBox="0 0 100 101" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                             <path d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z" fill="currentColor"/>
                                                             <path d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z" fill="currentFill"/>
@@ -83,7 +81,7 @@ export default function AccountTransactions({transactions, transactionTypes, han
                                 </table>
                             </div>
                         )))
-                    }
+                }
         </div>
     )
 }
