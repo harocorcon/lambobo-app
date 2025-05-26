@@ -9,6 +9,7 @@ export default function BoboCard({ boboDetails, mostRecent }) {
     }
 
     return (
+        bobo.isActive && 
             <div className="mb-4 justify-center flex flex-col bg-white shadow-sm hover:shadow-md border border-slate-200 rounded-lg max-w-md p-6">
                 <div className="flex items-center mb-2">
                     <h5 className=" text-slate-800 text-xl font-semibold">
